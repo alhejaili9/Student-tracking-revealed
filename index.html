@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>كشف متابعة الطلاب - احترافي</title>
+    <title>منشئ كشوف المتابعة المطوّر</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
@@ -25,7 +25,7 @@
             border-radius: 8px;
             margin-bottom: 20px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            max-width: 900px;
+            max-width: 1000px;
             margin: auto;
         }
 
@@ -47,6 +47,7 @@
             cursor: pointer;
             border: none;
             flex-grow: 1;
+            font-weight: bold;
         }
 
         /* الجدول */
@@ -68,7 +69,7 @@
             text-align: center;
             font-size: 11px;
             padding: 2px;
-            height: 18px; /* ارتفاع مضغوط */
+            height: 18px; 
             overflow: hidden;
         }
 
@@ -93,10 +94,23 @@
         }
 
         .name-col {
-            width: 180px;
+            width: 200px;
             text-align: right;
             padding-right: 5px;
             white-space: nowrap;
+            position: relative;
+        }
+
+        /* زر الحذف */
+        .del-btn {
+            color: red;
+            cursor: pointer;
+            font-weight: bold;
+            margin-left: 5px;
+            font-size: 14px;
+            display: inline-block;
+            border: none;
+            background: none;
         }
 
         .m-col { width: 25px; }
@@ -115,19 +129,21 @@
                 size: A4 landscape;
                 margin: 5mm;
             }
-            .controls { display: none; }
+            .controls, .del-btn { display: none !important; }
             .page-container { display: block !important; }
             body { background: white; padding: 0; }
+            .name-col { padding-right: 5px; }
         }
     </style>
 </head>
 <body>
 
 <div class="controls">
-    <h3 style="margin-top:0">إعداد كشف المتابعة</h3>
+    <h3 style="margin-top:0">إعداد كشف المتابعة لجميع المواد</h3>
     <div class="input-row">
         <input type="text" id="schoolName" placeholder="اسم المدرسة" value="مدارس العقيق الأهلية">
         <input type="text" id="teacherName" placeholder="اسم المعلم" value="عبدالرحمن سعد الحجيلي">
+        <input type="text" id="subjectInput" placeholder="اسم المادة" value="الرياضيات">
         <input type="text" id="className" placeholder="الفصل">
     </div>
     <div class="input-row">
@@ -135,13 +151,14 @@
         <button onclick="generateKashf()">إنشاء الكشف</button>
         <button onclick="window.print()" style="background:#0277bd">طباعة</button>
     </div>
+    <p style="font-size: 12px; color: #666; margin: 5px 0;">* بعد الإنشاء: اضغط على أي اسم لتعديله، أو علامة (X) لحذفه.</p>
     <textarea id="manualNames" rows="3" placeholder="أو الصق الأسماء هنا (اسم في كل سطر)" style="width:100%; box-sizing:border-box"></textarea>
 </div>
 
 <div class="page-container" id="printableArea">
     <div class="report-header">
         <div>وزارة التعليم<br><span id="headerSchool"></span></div>
-        <div style="font-size: 16px; align-self: center;">كشف متابعة مادة الرياضيات</div>
+        <div style="font-size: 16px; align-self: center;">كشف متابعة مادة <span id="headerSubject"></span></div>
         <div>المعلم: <span id="headerTeacher"></span><br>الأسبوع: ...........</div>
     </div>
 
@@ -194,18 +211,36 @@
 
         document.getElementById('headerSchool').innerText = document.getElementById('schoolName').value;
         document.getElementById('headerTeacher').innerText = document.getElementById('teacherName').value;
+        document.getElementById('headerSubject').innerText = document.getElementById('subjectInput').value;
         document.getElementById('displayClass').innerText = document.getElementById('className').value;
 
+        renderTable();
+        document.getElementById('printableArea').style.display = 'block';
+    }
+
+    function renderTable() {
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = names.map((name, i) => `
             <tr class="student-row">
                 <td>${i+1}</td>
-                <td class="name-col">${name}</td>
+                <td class="name-col">
+                    <button class="del-btn" onclick="deleteName(${i})">X</button>
+                    <span contenteditable="true" onblur="updateName(${i}, this.innerText)">${name}</span>
+                </td>
                 ${'<td></td>'.repeat(25)}
             </tr>
         `).join('');
+    }
 
-        document.getElementById('printableArea').style.display = 'block';
+    function deleteName(index) {
+        if(confirm("هل تريد حذف هذا الاسم؟")) {
+            names.splice(index, 1);
+            renderTable();
+        }
+    }
+
+    function updateName(index, newName) {
+        names[index] = newName.trim();
     }
 </script>
 
