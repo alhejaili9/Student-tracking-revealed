@@ -3,175 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منشئ كشوف المتابعة - احترافي</title>
+    <title>كشف متابعة الطلاب - العقيق</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
-            --primary-green: #e8f5e9;
-            --border-color: #333;
+            --bg-green: #e9f5e9;
+            --border: #000;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
+            font-family: 'Arial', sans-serif;
             margin: 0;
-            padding: 20px;
-        }
-
-        /* تنسيق قسم الإعدادات */
-        .setup-container {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            max-width: 800px;
-            margin: 0 auto 30px auto;
-        }
-
-        .input-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        input[type="text"], textarea, input[type="file"] {
-            width: 100%;
             padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            box-sizing: border-box;
+            background-color: #f4f4f4;
         }
 
-        .btn-generate {
+        /* تنسيق أدوات التحكم */
+        .controls {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        input, textarea, button {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
             background-color: #2e7d32;
             color: white;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 6px;
             cursor: pointer;
-            font-size: 16px;
-            width: 100%;
-            transition: background 0.3s;
+            border: none;
+            flex-grow: 1;
         }
 
-        .btn-generate:hover {
-            background-color: #1b5e20;
-        }
-
-        /* تنسيق الجدول (مثل الصورة) */
-        .kashf-container {
+        /* تنسيق الكشف (الجدول) */
+        .page-container {
             background: white;
-            padding: 10px;
-            display: none; /* يظهر بعد الضغط على إنشاء */
+            width: 287mm; /* عرض A4 افقي تقريباً */
+            margin: auto;
+            display: none;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 12px;
-            text-align: center;
+            table-layout: fixed;
         }
 
         th, td {
-            border: 1px solid var(--border-color);
-            height: 25px;
+            border: 1px solid var(--border);
+            text-align: center;
+            font-size: 11px;
+            padding: 2px;
+            height: 18px; /* تقليل ارتفاع الخلية */
+            overflow: hidden;
         }
 
-        .header-row th {
-            background-color: white;
+        .header-top th {
             font-weight: bold;
+            background: #fff;
+        }
+
+        .class-name-cell {
+            font-size: 14px;
+            line-height: 1.2;
         }
 
         .day-header {
-            background-color: white;
-            border-bottom: 2px solid #000;
+            font-size: 10px;
+            background-color: #fff;
         }
 
-        .sub-header {
-            font-size: 10px;
-            background-color: white;
+        .sub-header th {
+            font-size: 9px;
+            font-weight: normal;
         }
 
         .student-row:nth-child(even) {
-            background-color: var(--primary-green);
+            background-color: var(--bg-green);
         }
 
         .name-col {
+            width: 180px;
             text-align: right;
-            padding-right: 10px;
-            width: 250px;
+            padding-right: 5px;
+            white-space: nowrap;
+        }
+
+        .m-col { width: 25px; }
+        .col-small { width: 32px; }
+
+        /* ترويسة المدرسة والمعلم */
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
             font-weight: bold;
+            font-size: 12px;
         }
 
-        .num-col { width: 30px; }
-        .mark-col { width: 35px; }
-
-        /* تنسيق الطباعة */
+        /* إعدادات الطباعة */
         @media print {
-            .setup-container, .print-btn {
-                display: none !important;
+            @page {
+                size: A4 landscape;
+                margin: 5mm;
             }
+            .controls { display: none; }
+            .page-container { display: block !important; }
             body { background: white; padding: 0; }
-            .kashf-container { display: block !important; }
-            table { border: 2px solid black; }
-        }
-
-        .print-btn {
-            background-color: #0277bd;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-top: 20px;
-            display: none;
         }
     </style>
 </head>
 <body>
 
-<div class="setup-container" id="setupSection">
-    <h2 style="text-align: center; color: #2e7d32;">إعداد كشف المتابعة</h2>
-    
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-        <div class="input-group">
-            <label>الصف / الفصل</label>
-            <input type="text" id="className" placeholder="مثال: 2/1">
-        </div>
-        <div class="input-group">
-            <label>التاريخ</label>
-            <input type="text" id="kashfDate" placeholder="1447 / /">
-        </div>
+<div class="controls">
+    <h3 style="margin-top:0">إعداد كشف المتابعة الأسبوعي</h3>
+    <div class="input-row">
+        <input type="text" id="schoolName" placeholder="اسم المدرسة" value="مدارس العقيق الأهلية">
+        <input type="text" id="teacherName" placeholder="اسم المعلم" value="عبدالرحمن سعد الحجيلي">
+        <input type="text" id="className" placeholder="الفصل (مثلاً 2/2)">
     </div>
-
-    <div class="input-group">
-        <label>استيراد الأسماء من ملف إكسل (عمود الأسماء)</label>
-        <input type="file" id="excelFile" accept=".xlsx, .xls">
+    <div class="input-row">
+        <input type="file" id="excelFile" accept=".xlsx, .xls" style="flex-grow:1">
+        <button onclick="generateKashf()">إنشاء الكشف</button>
+        <button onclick="window.print()" style="background:#0277bd">طباعة (Ctrl+P)</button>
     </div>
-
-    <div class="input-group">
-        <label>أو أدخل الأسماء يدوياً (كل اسم في سطر)</label>
-        <textarea id="manualNames" rows="5" placeholder="أدخل الأسماء هنا..."></textarea>
-    </div>
-
-    <button class="btn-generate" onclick="generateKashf()">إنشاء الكشف وتجهيزه للطباعة</button>
+    <textarea id="manualNames" rows="3" placeholder="أو الصق الأسماء هنا (اسم في كل سطر)" style="width:100%; box-sizing:border-box"></textarea>
 </div>
 
-<div class="kashf-container" id="kashfContainer">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-        <div style="font-weight: bold; font-size: 18px;" id="displayClassName">الفصل: </div>
-        <button class="print-btn" id="printBtn" onclick="window.print()">طباعة الكشف</button>
+<div class="page-container" id="printableArea">
+    <div class="report-header">
+        <div>وزارة التعليم<br><span id="headerSchool">مدارس العقيق الأهلية</span></div>
+        <div style="font-size: 16px; align-self: center;">كشف متابعة مادة الرياضيات</div>
+        <div>المعلم: <span id="headerTeacher">عبدالرحمن سعد الحجيلي</span><br>الأسبوع: ...........</div>
     </div>
 
-    <table id="kashfTable">
+    <table>
         <thead>
-            <tr class="header-row">
-                <th rowspan="2" class="num-col">م</th>
-                <th rowspan="2" class="name-col">الاســــــــــــــــــــــــم</th>
+            <tr class="header-top">
+                <th rowspan="2" class="m-col">م</th>
+                <th rowspan="2" class="name-col class-name-cell">
+                    الفصل: <span id="displayClass"></span><br>
+                    الاســــــــــــــــــــــــــــــــم
+                </th>
                 <th colspan="5" class="day-header">الأحد / &nbsp;&nbsp; / 1447هـ</th>
                 <th colspan="5" class="day-header">الاثنين / &nbsp;&nbsp; / 1447هـ</th>
                 <th colspan="5" class="day-header">الثلاثاء / &nbsp;&nbsp; / 1447هـ</th>
@@ -179,11 +167,11 @@
                 <th colspan="5" class="day-header">الخميس / &nbsp;&nbsp; / 1447هـ</th>
             </tr>
             <tr class="sub-header">
-                <th class="mark-col">غياب</th><th class="mark-col">الكتاب</th><th class="mark-col">المشاركة</th><th class="mark-col">السلوك</th><th class="mark-col">ملاحظة</th>
-                <th class="mark-col">غياب</th><th class="mark-col">الكتاب</th><th class="mark-col">المشاركة</th><th class="mark-col">السلوك</th><th class="mark-col">ملاحظة</th>
-                <th class="mark-col">غياب</th><th class="mark-col">الكتاب</th><th class="mark-col">المشاركة</th><th class="mark-col">السلوك</th><th class="mark-col">ملاحظة</th>
-                <th class="mark-col">غياب</th><th class="mark-col">الكتاب</th><th class="mark-col">المشاركة</th><th class="mark-col">السلوك</th><th class="mark-col">ملاحظة</th>
-                <th class="mark-col">غياب</th><th class="mark-col">الكتاب</th><th class="mark-col">المشاركة</th><th class="mark-col">السلوك</th><th class="mark-col">ملاحظة</th>
+                <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small">ملاحظة</th>
+                <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small">ملاحظة</th>
+                <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small">ملاحظة</th>
+                <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small">ملاحظة</th>
+                <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small">ملاحظة</th>
             </tr>
         </thead>
         <tbody id="tableBody">
@@ -192,54 +180,40 @@
 </div>
 
 <script>
-    let studentNames = [];
+    let names = [];
 
-    // قراءة ملف الإكسل
-    document.getElementById('excelFile').addEventListener('change', function(e) {
-        const file = e.target.files[0];
+    document.getElementById('excelFile').onchange = function(e) {
         const reader = new FileReader();
-        reader.onload = function(event) {
+        reader.onload = (event) => {
             const data = new Uint8Array(event.target.result);
             const workbook = XLSX.read(data, {type: 'array'});
-            const firstSheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[firstSheetName];
-            const json = XLSX.utils.sheet_to_json(worksheet, {header: 1});
-            
-            // استخراج الأسماء (نفترض أنها في العمود الأول أو الثاني)
-            studentNames = json.map(row => row[0]).filter(name => name && name !== "الاسم" && isNaN(name));
-            alert("تم تحميل " + studentNames.length + " اسم من الملف.");
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const json = XLSX.utils.sheet_to_json(sheet, {header: 1});
+            names = json.map(r => r[0]).filter(n => n && isNaN(n));
         };
-        reader.readAsArrayBuffer(file);
-    });
+        reader.readAsArrayBuffer(e.target.files[0]);
+    };
 
     function generateKashf() {
-        const manualInput = document.getElementById('manualNames').value;
-        if (manualInput.trim() !== "") {
-            studentNames = manualInput.split('\n').filter(n => n.trim() !== "");
-        }
+        const manual = document.getElementById('manualNames').value;
+        if(manual.trim()) names = manual.split('\n').filter(n => n.trim());
+        
+        if(names.length === 0) return alert("يرجى إدخال الأسماء");
 
-        if (studentNames.length === 0) {
-            alert("يرجى إدخال الأسماء أولاً");
-            return;
-        }
+        document.getElementById('headerSchool').innerText = document.getElementById('schoolName').value;
+        document.getElementById('headerTeacher').innerText = document.getElementById('teacherName').value;
+        document.getElementById('displayClass').innerText = document.getElementById('className').value;
 
-        document.getElementById('displayClassName').innerText = "الفصل: " + document.getElementById('className').value;
         const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = "";
-
-        studentNames.forEach((name, index) => {
-            let row = `<tr class="student-row">
-                <td>${index + 1}</td>
+        tbody.innerHTML = names.map((name, i) => `
+            <tr class="student-row">
+                <td>${i+1}</td>
                 <td class="name-col">${name}</td>
                 ${'<td></td>'.repeat(25)}
-            </tr>`;
-            tbody.innerHTML += row;
-        });
+            </tr>
+        `).join('');
 
-        // إظهار الجدول وإخفاء الإعدادات
-        document.getElementById('kashfContainer').style.display = 'block';
-        document.getElementById('printBtn').style.display = 'block';
-        window.scrollTo(0, document.getElementById('kashfContainer').offsetTop);
+        document.getElementById('printableArea').style.display = 'block';
     }
 </script>
 
