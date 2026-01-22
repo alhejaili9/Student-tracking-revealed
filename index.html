@@ -29,6 +29,19 @@
             margin: auto;
         }
 
+        /* قسم التعليمات */
+        .instructions {
+            background-color: #e3f2fd;
+            border-right: 5px solid #2196f3;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            border-radius: 4px;
+        }
+
+        .instructions h4 { margin: 0 0 5px 0; color: #0d47a1; }
+        .instructions ul { margin: 0; padding-right: 20px; }
+
         .input-row {
             display: flex;
             gap: 10px;
@@ -101,7 +114,6 @@
             position: relative;
         }
 
-        /* زر الحذف */
         .del-btn {
             color: red;
             cursor: pointer;
@@ -129,17 +141,28 @@
                 size: A4 landscape;
                 margin: 5mm;
             }
-            .controls, .del-btn { display: none !important; }
+            .controls, .del-btn, .instructions { display: none !important; }
             .page-container { display: block !important; }
             body { background: white; padding: 0; }
-            .name-col { padding-right: 5px; }
         }
     </style>
 </head>
 <body>
 
 <div class="controls">
-    <h3 style="margin-top:0">إعداد كشف المتابعة لجميع المواد</h3>
+    <h3 style="margin-top:0; color:#2e7d32;">إعداد كشف المتابعة</h3>
+    
+    <div class="instructions">
+        <h4>💡 تعليمات الاستخدام:</h4>
+        <ul>
+            <li>قم بتعبئة بيانات <b>المدرسة، المعلم، المادة، والفصل</b> في الخانات المخصصة.</li>
+            <li>لإضافة الطلاب: اختر ملف <b>إكسل</b> (الأسماء في العمود الأول) أو قم بـ <b>لصق الأسماء</b> في المربع السفلي.</li>
+            <li>اضغط على <b>"إنشاء الكشف"</b> لتوليد الجدول.</li>
+            <li>يمكنك <b>تعديل أي اسم</b> مباشرة بالضغط عليه، أو <b>حذفه</b> بالضغط على علامة (X).</li>
+            <li>عند الطباعة: تأكد من ضبط إعدادات الورق على <b>Landscape (عرضي)</b> لضمان ظهور الكشف كاملاً.</li>
+        </ul>
+    </div>
+
     <div class="input-row">
         <input type="text" id="schoolName" placeholder="اسم المدرسة" value="مدارس العقيق الأهلية">
         <input type="text" id="teacherName" placeholder="اسم المعلم" value="عبدالرحمن سعد الحجيلي">
@@ -151,7 +174,6 @@
         <button onclick="generateKashf()">إنشاء الكشف</button>
         <button onclick="window.print()" style="background:#0277bd">طباعة</button>
     </div>
-    <p style="font-size: 12px; color: #666; margin: 5px 0;">* بعد الإنشاء: اضغط على أي اسم لتعديله، أو علامة (X) لحذفه.</p>
     <textarea id="manualNames" rows="3" placeholder="أو الصق الأسماء هنا (اسم في كل سطر)" style="width:100%; box-sizing:border-box"></textarea>
 </div>
 
