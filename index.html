@@ -58,6 +58,25 @@
             box-sizing: border-box;
         }
 
+        /* قسم إدارة الفصول المحفوظة */
+        .save-manager {
+            background: #e8f5e9;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #c8e6c9;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .save-manager strong { color: #1b5e20; font-size: 14px; }
+        .save-manager select { flex: 1; min-width: 200px; padding: 8px; border-radius: 6px; border: 1px solid #a5d6a7; }
+        
+        .btn-save { background-color: #1b5e20; }
+        .btn-clear { background-color: #c62828; }
+
         .instructions {
             background-color: #e3f2fd;
             border-right: 5px solid #2196f3;
@@ -79,7 +98,6 @@
         }
 
         .input-field { display: flex; flex-direction: column; gap: 5px; }
-        
         .input-field label { font-size: 12px; font-weight: bold; color: #444; }
 
         input[type="text"], input[type="number"], select, textarea {
@@ -94,7 +112,6 @@
         input:focus, select:focus, textarea:focus { border-color: #2e7d32; outline: none; }
         input[type="file"] { padding: 7px; border: 1px dashed #bbb; border-radius: 6px; background: #fafafa; cursor: pointer; }
 
-        /* ستايل خيارات الإخفاء/الإظهار (Toggles) */
         .toggle-group {
             display: flex;
             gap: 15px;
@@ -106,22 +123,8 @@
             margin-bottom: 15px;
         }
         
-        .toggle-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 13px;
-            font-weight: bold;
-            color: #555;
-            cursor: pointer;
-        }
-
-        .toggle-item input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
-            cursor: pointer;
-            accent-color: #2e7d32;
-        }
+        .toggle-item { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: bold; color: #555; cursor: pointer; }
+        .toggle-item input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: #2e7d32; }
 
         .action-buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
         
@@ -147,11 +150,12 @@
         .btn-pdf { background-color: #c2410c; flex: 1; min-width: 110px; }
         .btn-word { background-color: #1d4ed8; flex: 1; min-width: 110px; }
 
+        /* تعديلات منطقة ورق الكشف - فك الضغط */
         .page-container {
             background: white;
             width: 287mm; 
             margin: auto;
-            padding: 12px 10px;
+            padding: 12px 10px 8px 10px;
             box-shadow: 0 0 15px rgba(0,0,0,0.1);
             display: none;
             box-sizing: border-box;
@@ -162,30 +166,31 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 12px; /* زيادة المساحة تحت الرأس */
             font-weight: bold;
             font-size: 13px;
             padding: 0 5px;
         }
 
-        .report-header div { line-height: 1.4; }
+        .report-header div { line-height: 1.5; }
         
-        table { width: 100%; border-collapse: collapse; table-layout: fixed; background-color: #fff; }
-        th, td { border: 1px solid var(--border-color); text-align: center; font-size: 11px; padding: 3px 2px; height: 20px; box-sizing: border-box; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; background-color: #fff; margin-bottom: 5px;}
+        th, td { 
+            border: 1px solid var(--border-color); 
+            text-align: center; 
+            font-size: 11px; 
+            padding: 4px 2px; /* زيادة الفراغ العمودي */
+            height: 22px; /* زيادة الارتفاع لفك الضغط */
+            box-sizing: border-box; 
+        }
 
         .day-separator-left { border-left: 3px solid var(--thick-border-color) !important; }
         
         .header-top th { font-weight: bold; background: var(--header-bg); }
-        .sub-header th { background: var(--header-bg); font-size: 10px; padding: 4px 1px; }
-        .class-name-cell { font-size: 12px; line-height: 1.3; }
+        .sub-header th { background: var(--header-bg); font-size: 10px; padding: 5px 1px; }
+        .class-name-cell { font-size: 12px; line-height: 1.4; }
         
-        .day-header {
-            font-size: 11px;
-            background-color: var(--header-bg);
-            white-space: nowrap;
-            padding: 7px 2px;
-            letter-spacing: 0.5px;
-        }
+        .day-header { font-size: 11px; background-color: var(--header-bg); white-space: nowrap; padding: 8px 2px; letter-spacing: 0.5px; }
 
         .student-row:nth-child(even) { background-color: var(--bg-striped); }
         .name-col { width: 200px; text-align: right; padding-right: 6px; white-space: nowrap; position: relative; }
@@ -196,11 +201,20 @@
         .m-col { width: 28px; }
         .col-small { width: 31px; }
 
+        .report-footer {
+            text-align: center;
+            font-size: 11px;
+            font-weight: bold;
+            color: #444;
+            margin-top: 6px;
+        }
+
         @media print {
-            @page { size: A4 landscape; margin: 15mm 6mm 6mm 6mm; }
+            /* تعديل هوامش الطباعة لتناسب الارتفاع الجديد */
+            @page { size: A4 landscape; margin: 10mm 6mm 6mm 6mm; }
             body { background: white; padding: 0; margin: 0; }
-            .app-header, .controls, .del-btn, .instructions { display: none !important; }
-            .page-container { display: block !important; width: 100% !important; box-shadow: none !important; padding: 0 !important; margin-top: 15px !important; }
+            .app-header, .controls, .save-manager, .del-btn, .instructions { display: none !important; }
+            .page-container { display: block !important; width: 100% !important; box-shadow: none !important; padding: 0 !important; margin-top: 5px !important; }
         }
     </style>
 </head>
@@ -212,17 +226,23 @@
 </div>
 
 <div class="controls">
+    
+    <!-- مدير الفصول المحفوظة -->
+    <div class="save-manager">
+        <strong>إدارة الفصول:</strong>
+        <select id="savedClassesDropdown" onchange="loadSelectedClass()">
+            <option value="">-- الفصول المحفوظة بالمتصفح --</option>
+        </select>
+        <button class="btn-save" onclick="saveCurrentClass()">💾 حفظ الفصل الحالي</button>
+        <button class="btn-clear" onclick="clearAllData()">🗑️ مسح كل البيانات</button>
+    </div>
+
     <!-- إعدادات إظهار/إخفاء عناصر الرأس -->
     <div class="toggle-group">
-        <label class="toggle-item">
-            <input type="checkbox" id="showMinistry" checked onchange="toggleHeaderElements()"> إظهار (وزارة التعليم)
-        </label>
-        <label class="toggle-item">
-            <input type="checkbox" id="showSchool" checked onchange="toggleHeaderElements()"> إظهار المدرسة
-        </label>
-        <label class="toggle-item">
-            <input type="checkbox" id="showTeacher" checked onchange="toggleHeaderElements()"> إظهار المعلم
-        </label>
+        <label class="toggle-item"><input type="checkbox" id="showMinistry" checked onchange="toggleHeaderElements()"> وزارة التعليم</label>
+        <label class="toggle-item"><input type="checkbox" id="showSchool" checked onchange="toggleHeaderElements()"> المدرسة</label>
+        <label class="toggle-item"><input type="checkbox" id="showTeacher" checked onchange="toggleHeaderElements()"> المعلم</label>
+        <label class="toggle-item"><input type="checkbox" id="showWeek" checked onchange="toggleHeaderElements()"> الأسبوع</label>
     </div>
 
     <!-- المدخلات الأساسية -->
@@ -277,7 +297,9 @@
         </div>
         <div class="input-field">
             <label>أو لصق الأسماء هنا (اسم في كل سطر):</label>
-            <textarea id="manualNames" rows="2" placeholder="علي أحمد المحمد&#10;خالد عبدالله السالم&#10;..."></textarea>
+            <textarea id="manualNames" rows="2" placeholder="علي أحمد المحمد
+خالد عبدالله السالم
+..."></textarea>
         </div>
     </div>
 
@@ -304,7 +326,7 @@
         <div id="leftHeader">
             <span id="textTeacher">المعلم: <span id="headerTeacher"></span></span>
             <br id="brTeacher">
-            الأسبوع: <span id="headerWeek">...........</span>
+            <span id="textWeek">الأسبوع: <span id="headerWeek">...........</span></span>
         </div>
     </div>
 
@@ -332,33 +354,135 @@
         </thead>
         <tbody id="tableBody"></tbody>
     </table>
+    
+    <!-- الفوتر الجديد -->
+    <div class="report-footer">
+        عبدالرحمن سعد الحجيلي 2026
+    </div>
 </div>
 
 <script>
     let names = [];
+    let appData = {}; // تخزين الفصول
+
+    // جلب البيانات عند تحميل الصفحة
+    window.onload = function() {
+        const stored = localStorage.getItem('shaeri_classes_data');
+        if (stored) {
+            try {
+                appData = JSON.parse(stored);
+                updateDropdown();
+            } catch(e) {}
+        }
+    };
+
+    function updateDropdown() {
+        const dropdown = document.getElementById('savedClassesDropdown');
+        dropdown.innerHTML = '<option value="">-- الفصول المحفوظة بالمتصفح --</option>';
+        for (const cls in appData) {
+            const opt = document.createElement('option');
+            opt.value = cls;
+            opt.innerText = "الفصل: " + cls;
+            dropdown.appendChild(opt);
+        }
+    }
+
+    function saveCurrentClass() {
+        const className = document.getElementById('className').value.trim();
+        if (!className) return alert("يرجى كتابة (اسم الفصل) أولاً حتى يتم الحفظ باسمه.");
+        if (names.length === 0 && !document.getElementById('manualNames').value.trim()) {
+            return alert("لا يوجد أسماء طلاب لحفظها!");
+        }
+
+        // تحديث مصفوفة الأسماء من التيكست اريا إذا لم يتم الإنشاء بعد
+        if(names.length === 0) {
+            names = document.getElementById('manualNames').value.split('\n').filter(n => n.trim());
+        }
+
+        const classData = {
+            school: document.getElementById('schoolName').value,
+            teacher: document.getElementById('teacherName').value,
+            subject: document.getElementById('subjectInput').value,
+            className: className,
+            week: document.getElementById('weekInput').value,
+            year: document.getElementById('yearInput').value,
+            numberStyle: document.getElementById('numberStyle').value,
+            colorTheme: document.getElementById('colorTheme').value,
+            names: [...names],
+            toggles: {
+                ministry: document.getElementById('showMinistry').checked,
+                school: document.getElementById('showSchool').checked,
+                teacher: document.getElementById('showTeacher').checked,
+                week: document.getElementById('showWeek').checked
+            }
+        };
+
+        appData[className] = classData;
+        localStorage.setItem('shaeri_classes_data', JSON.stringify(appData));
+        alert("تم حفظ بيانات الفصل (" + className + ") بنجاح في المتصفح.");
+        updateDropdown();
+        document.getElementById('savedClassesDropdown').value = className;
+    }
+
+    function loadSelectedClass() {
+        const className = document.getElementById('savedClassesDropdown').value;
+        if (!className || !appData[className]) return;
+        
+        const data = appData[className];
+        
+        document.getElementById('schoolName').value = data.school || '';
+        document.getElementById('teacherName').value = data.teacher || '';
+        document.getElementById('subjectInput').value = data.subject || '';
+        document.getElementById('className').value = data.className || '';
+        document.getElementById('weekInput').value = data.week || '';
+        document.getElementById('yearInput').value = data.year || '1448';
+        document.getElementById('numberStyle').value = data.numberStyle || 'ar';
+        document.getElementById('colorTheme').value = data.colorTheme || 'green';
+        
+        document.getElementById('showMinistry').checked = data.toggles?.ministry ?? true;
+        document.getElementById('showSchool').checked = data.toggles?.school ?? true;
+        document.getElementById('showTeacher').checked = data.toggles?.teacher ?? true;
+        document.getElementById('showWeek').checked = data.toggles?.week ?? true;
+        
+        names = data.names ? [...data.names] : [];
+        document.getElementById('manualNames').value = names.join('\n');
+        
+        applyTheme();
+        generateKashf(); // توليد الكشف تلقائياً بعد التحميل
+    }
+
+    function clearAllData() {
+        if(confirm("تحذير ⚠️: سيتم مسح جميع الفصول والأسماء والإعدادات المحفوظة بشكل نهائي. هل أنت متأكد؟")) {
+            localStorage.removeItem('shaeri_classes_data');
+            appData = {};
+            names = [];
+            updateDropdown();
+            location.reload(); // إعادة تحميل الصفحة للبدء من جديد
+        }
+    }
 
     // دالة إخفاء وإظهار عناصر الرأس
     function toggleHeaderElements() {
         const showMinistry = document.getElementById('showMinistry').checked;
         const showSchool = document.getElementById('showSchool').checked;
         const showTeacher = document.getElementById('showTeacher').checked;
+        const showWeek = document.getElementById('showWeek').checked;
 
-        // قسم اليمين (وزارة التعليم والمدرسة)
         const textMinistry = document.getElementById('textMinistry');
         const brMinistry = document.getElementById('brMinistry');
         const headerSchool = document.getElementById('headerSchool');
 
         textMinistry.style.display = showMinistry ? 'inline' : 'none';
         headerSchool.style.display = showSchool ? 'inline' : 'none';
-        // إخفاء النزول لسطر جديد إذا تم إخفاء أحدهما
         brMinistry.style.display = (showMinistry && showSchool) ? 'inline' : 'none';
 
-        // قسم اليسار (المعلم)
         const textTeacher = document.getElementById('textTeacher');
         const brTeacher = document.getElementById('brTeacher');
+        const textWeek = document.getElementById('textWeek');
         
         textTeacher.style.display = showTeacher ? 'inline' : 'none';
-        brTeacher.style.display = showTeacher ? 'inline' : 'none';
+        textWeek.style.display = showWeek ? 'inline' : 'none';
+        brTeacher.style.display = (showTeacher && showWeek) ? 'inline' : 'none';
     }
 
     // تحويل الأرقام
@@ -384,6 +508,7 @@
             const sheet = workbook.Sheets[workbook.SheetNames[0]];
             const json = XLSX.utils.sheet_to_json(sheet, {header: 1});
             names = json.map(r => r[0]).filter(n => n && isNaN(n));
+            document.getElementById('manualNames').value = names.join('\n'); // عرضها في المربع
             alert("تم استيراد " + names.length + " اسماً بنجاح.");
         };
         reader.readAsArrayBuffer(e.target.files[0]);
@@ -407,15 +532,23 @@
         if(manual.trim()) names = manual.split('\n').filter(n => n.trim());
         if(names.length === 0) return alert("يرجى إدخال أسماء الطلاب أو استيراد ملف إكسل");
 
+        // تنبيه امتداد الصفحة لعدد أكثر من 30
+        if (names.length > 30) {
+            alert("تنبيه: عدد الطلاب (" + names.length + ") أكثر من 30 طالب. قد يمتد الكشف إلى صفحة ثانية عند الطباعة.");
+        }
+
         document.getElementById('headerSchool').innerText = document.getElementById('schoolName').value;
         document.getElementById('headerTeacher').innerText = document.getElementById('teacherName').value;
         document.getElementById('headerSubject').innerText = document.getElementById('subjectInput').value;
-        document.getElementById('displayClass').innerText = document.getElementById('className').value;
+        
+        // تطبيق تحويل الأرقام على اسم الفصل لتظهر بالعربية إذا تم اختيارها
+        const classNameFormatted = formatNumber(document.getElementById('className').value);
+        document.getElementById('displayClass').innerText = classNameFormatted;
         
         const weekVal = document.getElementById('weekInput').value;
         document.getElementById('headerWeek').innerText = formatNumber(weekVal) || '...........';
 
-        toggleHeaderElements(); // التأكد من تطبيق حالة الإظهار/الإخفاء
+        toggleHeaderElements(); 
         renderTable();
         document.getElementById('printableArea').style.display = 'block';
     }
@@ -433,6 +566,9 @@
         // تحديث أرقام الأسبوع
         const weekVal = document.getElementById('weekInput').value;
         if (weekVal) document.getElementById('headerWeek').innerText = formatNumber(weekVal);
+
+        // تطبيق تحويل الأرقام على الفصل في حال تغيرت القائمة المنسدلة للغة
+        document.getElementById('displayClass').innerText = formatNumber(document.getElementById('className').value);
 
         tbody.innerHTML = names.map((name, i) => {
             let cells = '';
@@ -472,17 +608,19 @@
         const teacher = document.getElementById('showTeacher').checked ? 'المعلم: ' + document.getElementById('teacherName').value : '';
         const subject = document.getElementById('subjectInput').value;
         const className = document.getElementById('className').value;
+        const displayClassName = formatNumber(className);
         const week = document.getElementById('weekInput').value;
         const year = document.getElementById('yearInput').value;
+        const weekText = document.getElementById('showWeek').checked ? 'الأسبوع: ' + formatNumber(week) : '';
 
         const days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس'];
         const subHeaders = ['غياب', 'كتاب', 'مشاركة', 'سلوك', 'ملاحظة'];
 
         let data = [];
-        data.push([ministry, school, '', '', '', 'كشف متابعة مادة: ' + subject, '', '', '', '', '', '', '', '', '', teacher, '', '', 'الأسبوع: ' + formatNumber(week), 'العام: ' + formatNumber(year)]);
+        data.push([ministry, school, '', '', '', 'كشف متابعة مادة: ' + subject, '', '', '', '', '', '', '', '', '', teacher, '', '', weekText, 'العام: ' + formatNumber(year)]);
         data.push([]); 
 
-        let dayRow = ['م', 'الفصل: ' + className + ' - الاسم'];
+        let dayRow = ['م', 'الفصل: ' + displayClassName + ' - الاسم'];
         days.forEach(d => { dayRow.push(d, '', '', '', ''); });
         data.push(dayRow);
 
@@ -499,7 +637,7 @@
         const ws = XLSX.utils.aoa_to_sheet(data);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "كشف المتابعة");
-        XLSX.writeFile(wb, `كشف_متابعة_${className || 'الفصل'}.xlsx`);
+        XLSX.writeFile(wb, `كشف_متابعة_الفصل_${className || 'بدون_اسم'}.xlsx`);
     }
 
     // تصدير PDF
@@ -511,7 +649,7 @@
 
         const className = document.getElementById('className').value || 'الفصل';
         const opt = {
-            margin: [12, 6, 6, 6],
+            margin: [10, 6, 6, 6],
             filename: `كشف_متابعة_${className}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2, useCORS: true },
@@ -539,11 +677,12 @@
                     @page Section1 { size: 841.9pt 595.3pt; mso-page-orientation: landscape; margin: 1.27cm; }
                     div.Section1 { page: Section1; }
                     body { font-family: 'Arial', sans-serif; direction: rtl; }
-                    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-                    th, td { border: 1px solid #000; text-align: center; font-size: 10pt; padding: 4px 2px; }
+                    table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 5px;}
+                    th, td { border: 1px solid #000; text-align: center; font-size: 10pt; padding: 5px 2px; height: 22px;}
                     .day-separator-left { border-left: 3px solid #000 !important; }
                     .report-header { display: flex; justify-content: space-between; margin-bottom: 12px; font-weight: bold; font-size: 11pt; }
                     .student-row:nth-child(even) { background-color: #f4f9f4; }
+                    .report-footer { text-align: center; font-size: 9pt; font-weight: bold; margin-top: 6px; }
                 </style>
             </head>
             <body>
