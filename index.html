@@ -73,6 +73,7 @@
         .save-manager strong { color: #1b5e20; font-size: 14px; }
         .save-manager select { flex: 1; min-width: 160px; padding: 8px; border-radius: 6px; border: 1px solid #a5d6a7; }
         
+        /* قسم التعليمات */
         .instructions {
             background-color: #e3f2fd;
             border-right: 5px solid #2196f3;
@@ -82,7 +83,6 @@
             border-radius: 6px;
             line-height: 1.6;
         }
-
         .instructions h4 { margin: 0 0 10px 0; color: #0d47a1; font-size: 15px; }
         .instructions ul { margin: 0; padding-right: 20px; }
         .instructions li { margin-bottom: 5px; }
@@ -177,20 +177,28 @@
             box-sizing: border-box;
         }
 
-        .report-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        /* الجدول الخاص بالترويسة لضمان توافقه مع Word والطباعة */
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: none !important;
             margin-bottom: 12px;
-            font-weight: bold;
-            font-size: 13px;
-            padding: 0 5px;
+            table-layout: fixed;
         }
-
-        .report-header div { line-height: 1.5; }
+        .header-table td {
+            border: none !important;
+            padding: 0;
+            vertical-align: middle;
+        }
         
-        table { width: 100%; border-collapse: collapse; table-layout: fixed; background-color: #fff; margin-bottom: 5px;}
-        th, td { 
+        table.data-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            table-layout: fixed; 
+            background-color: #fff; 
+            margin-bottom: 5px;
+        }
+        table.data-table th, table.data-table td { 
             border: 1px solid var(--border-color); 
             text-align: center; 
             font-size: 11px; 
@@ -216,9 +224,9 @@
         .m-col { width: 28px; }
         .col-small { width: 31px; }
 
+        /* تعديلات الطباعة القوية لضمان عدم التداخل والقطع */
         @media print {
-            /* تعديل الهوامش والاتجاه للطباعة من المتصفح */
-            @page { size: A4 landscape; margin: 10mm; }
+            @page { size: A4 landscape; margin: 10mm 5mm 10mm 5mm; }
             
             body { 
                 background: white; 
@@ -241,29 +249,20 @@
                 box-shadow: none !important;
                 margin: 0 !important;
                 padding: 0 !important;
-                page-break-after: always !important; /* إجبار كسر الصفحة بعد كل فصل */
+                page-break-after: always !important; 
                 break-after: page !important;
+                page-break-inside: auto !important;
             }
             
-            /* إزالة الـ margin-bottom للكشف الأخير حتى لا ينشئ صفحة فارغة */
             .class-page:last-child {
                  page-break-after: auto !important;
                  break-after: auto !important;
             }
 
-            table { page-break-inside: auto; }
-            tr { page-break-inside: avoid; break-inside: avoid; page-break-after: auto; }
-        }
-        
-        /* كلاس مخصص لحفظ الـ PDF يضمن أن كل كشف في ورقة مستقلة دون تداخل */
-        .pdf-export-mode .class-page {
-             page-break-after: always;
-             margin-bottom: 0 !important;
-             box-shadow: none;
-             padding: 10px;
-        }
-        .pdf-export-mode .class-page:last-child {
-             page-break-after: auto;
+            table.data-table { page-break-inside: auto; }
+            table.data-table tr { page-break-inside: avoid; break-inside: avoid; page-break-after: auto; }
+            /* منع تكرار الهيدر وتداخله في كروم */
+            table.data-table thead { display: table-row-group; }
         }
 
     </style>
@@ -277,6 +276,7 @@
 
 <div class="controls">
     
+    <!-- قسم التعليمات (تم إرجاعه كما طلب المستخدم) -->
     <div class="instructions">
         <h4>💡 تعليمات استخدام الأداة:</h4>
         <ul>
@@ -284,7 +284,7 @@
             <li>لإضافة الطلاب: اختر ملف <b>إكسل</b> (الأسماء في العمود الأول) أو قم بـ <b>لصق الأسماء</b> في المربع السفلي.</li>
             <li>لإضافة فصول متعددة: قم بإدخال بيانات الفصل ثم اضغط على زر <b>(💾 حفظ)</b>، ثم اضغط <b>(➕ فصل جديد)</b> لإدخال الفصل التالي وهكذا.</li>
             <li>يمكنك استعراض وطباعة جميع الفصول المحفوظة دفعة واحدة بالضغط على <b>(📂 استعراض الكل)</b>.</li>
-            <li>يتم حفظ فصولك وإعداداتك بشكل تلقائي داخل متصفحك الحالي، ولن تفقدها عند إغلاق الصفحة.</li>
+            <li><b>ملاحظة للطباعة:</b> تأكد من اختيار التخطيط (Landscape/عرضي) في نافذة الطباعة للحصول على أفضل نتيجة.</li>
         </ul>
     </div>
 
@@ -299,7 +299,7 @@
         <button onclick="clearAllData()" style="background:#c62828;">🗑️ مسح الكل</button>
     </div>
 
-    <!-- إضافة خيار إخفاء عنوان الكشف هنا -->
+    <!-- إعدادات إظهار/إخفاء عناصر الرأس -->
     <div class="toggle-group">
         <label class="toggle-item"><input type="checkbox" id="showMinistry" checked onchange="toggleHeaderElements()"> وزارة التعليم</label>
         <label class="toggle-item"><input type="checkbox" id="showSchool" checked onchange="toggleHeaderElements()"> المدرسة</label>
@@ -373,22 +373,24 @@
 </div>
 
 <div class="page-container" id="printableArea">
-    <div class="report-header">
-        <div id="rightHeader">
-            <span id="textMinistry">وزارة التعليم</span>
-            <br id="brMinistry">
-            <span id="headerSchool"></span>
-        </div>
-        <!-- إضافة ID للعنوان للتحكم بإخفائه -->
-        <div class="report-title" id="reportTitleContainer" style="font-size: 16px;">كشف متابعة مادة <span id="headerSubject"></span></div>
-        <div id="leftHeader">
-            <span id="textTeacher">المعلم: <span id="headerTeacher"></span></span>
-            <br id="brTeacher">
-            <span id="textWeek">الأسبوع: <span id="headerWeek">...........</span></span>
-        </div>
-    </div>
+    <!-- استخدام Table للترويسة لضمان توافقها 100% مع Word والطباعة -->
+    <table class="header-table" id="headerTableSingle">
+        <tr>
+            <td id="rightHeaderTd" style="width:33%; text-align:right; font-weight:bold;">
+                <span id="textMinistry">وزارة التعليم</span><br id="brMinistry">
+                <span id="headerSchool"></span>
+            </td>
+            <td id="centerHeaderTd" style="width:34%; text-align:center; font-weight:bold; font-size:16px;">
+                <span id="reportTitleContainer">كشف متابعة مادة <span id="headerSubject"></span></span>
+            </td>
+            <td id="leftHeaderTd" style="width:33%; text-align:left; font-weight:bold;">
+                <span id="textTeacher">المعلم: <span id="headerTeacher"></span></span><br id="brTeacher">
+                <span id="textWeek">الأسبوع: <span id="headerWeek">...........</span></span>
+            </td>
+        </tr>
+    </table>
 
-    <table>
+    <table class="data-table">
         <thead>
             <tr class="header-top">
                 <th rowspan="2" class="m-col">م</th>
@@ -548,7 +550,7 @@
         if(brTeacher) brTeacher.style.display = (showTeacher && showWeek) ? 'inline' : 'none';
 
         const reportTitleContainer = document.getElementById('reportTitleContainer');
-        if(reportTitleContainer) reportTitleContainer.style.display = showSubjectTitle ? 'block' : 'none';
+        if(reportTitleContainer) reportTitleContainer.style.display = showSubjectTitle ? 'inline' : 'none';
     }
 
     function formatNumber(numStr, overrideStyle) {
@@ -596,10 +598,6 @@
         const manual = document.getElementById('manualNames').value;
         if(manual.trim()) names = manual.split('\n').filter(n => n.trim());
         if(names.length === 0) return alert("يرجى إدخال أسماء الطلاب أو استيراد ملف إكسل");
-
-        if (names.length > 30) {
-            alert("تنبيه: عدد الطلاب (" + names.length + ") أكثر من 30 طالب. قد يمتد الكشف إلى صفحة ثانية عند الطباعة.");
-        }
 
         document.getElementById('allClassesArea').style.display = 'none';
 
@@ -687,32 +685,36 @@
             </tr>`;
         }).join('');
 
-        const minBlock = (data.toggles.ministry || data.toggles.school) ? 'block' : 'none';
         const minSpan = data.toggles.ministry ? 'inline' : 'none';
         const schSpan = data.toggles.school ? 'inline' : 'none';
         const brMin = (data.toggles.ministry && data.toggles.school) ? '<br>' : '';
 
-        const teachBlock = (data.toggles.teacher || data.toggles.week) ? 'block' : 'none';
         const teachSpan = data.toggles.teacher ? 'inline' : 'none';
         const wkSpan = data.toggles.week ? 'inline' : 'none';
         const brTeach = (data.toggles.teacher && data.toggles.week) ? '<br>' : '';
         
-        const titleDisplay = (data.toggles.subjectTitle !== false) ? 'block' : 'none';
+        const titleDisplay = (data.toggles.subjectTitle !== false) ? 'inline' : 'none';
 
+        // استخدام Table في ترويسة جميع الفصول لضمان عمل Word والطباعة بشكل سليم
         return `
         <div class="class-page">
-            <div class="report-header">
-                <div style="display: ${minBlock}">
-                    <span style="display: ${minSpan}">وزارة التعليم</span>${brMin}
-                    <span style="display: ${schSpan}">${data.school}</span>
-                </div>
-                <div class="report-title" style="font-size: 16px; display: ${titleDisplay};">كشف متابعة مادة ${data.subject}</div>
-                <div style="display: ${teachBlock}">
-                    <span style="display: ${teachSpan}">المعلم: ${data.teacher}</span>${brTeach}
-                    <span style="display: ${wkSpan}">الأسبوع: ${wk || '...........'}</span>
-                </div>
-            </div>
-            <table>
+            <table class="header-table">
+                <tr>
+                    <td style="width:33%; text-align:right; font-weight:bold;">
+                        <span style="display: ${minSpan}">وزارة التعليم</span>${brMin}
+                        <span style="display: ${schSpan}">${data.school}</span>
+                    </td>
+                    <td style="width:34%; text-align:center; font-weight:bold; font-size:16px;">
+                        <span style="display: ${titleDisplay}">كشف متابعة مادة ${data.subject}</span>
+                    </td>
+                    <td style="width:33%; text-align:left; font-weight:bold;">
+                        <span style="display: ${teachSpan}">المعلم: ${data.teacher}</span>${brTeach}
+                        <span style="display: ${wkSpan}">الأسبوع: ${wk || '...........'}</span>
+                    </td>
+                </tr>
+            </table>
+            
+            <table class="data-table">
                 <thead>
                     <tr class="header-top">
                         <th rowspan="2" class="m-col">م</th>
@@ -778,7 +780,7 @@
             if(Object.keys(appData).length === 0) return alert("لا توجد فصول محفوظة للتصدير.");
             for (const cls in appData) {
                 const ws = createSheetForClass(appData[cls]);
-                const safeName = cls.replace(/[\/*?:\[\]]/g, '-').substring(0, 31);
+                const safeName = cls.replace(/[\\/*?:\[\]]/g, '-').substring(0, 31);
                 XLSX.utils.book_append_sheet(wb, ws, safeName);
             }
             XLSX.writeFile(wb, `جميع_الكشوفات.xlsx`);
@@ -802,7 +804,7 @@
                 }
             };
             const ws = createSheetForClass(currentData);
-            const safeName = (currentData.className || 'الفصل').replace(/[\/*?:\[\]]/g, '-').substring(0, 31);
+            const safeName = (currentData.className || 'الفصل').replace(/[\\/*?:\[\]]/g, '-').substring(0, 31);
             XLSX.utils.book_append_sheet(wb, ws, safeName);
             XLSX.writeFile(wb, `كشف_متابعة_${safeName}.xlsx`);
         }
@@ -814,9 +816,6 @@
         
         const areaId = isAllMode ? 'allClassesArea' : 'printableArea';
         const element = document.getElementById(areaId);
-        
-        // إضافة الكلاس اللي يفصل الصفحات عند التصدير لـ PDF
-        element.classList.add('pdf-export-mode');
 
         const delBtns = element.querySelectorAll('.del-btn');
         delBtns.forEach(b => b.style.display = 'none');
@@ -827,16 +826,13 @@
             margin: [10, 5, 10, 5],
             filename: fileName,
             image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+            html2canvas: { scale: 2, useCORS: true },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
-            // إضافة خاصية pagebreak للفصل الصحيح في الـ PDF
-            pagebreak: { mode: ['css', 'legacy'] }
+            pagebreak: { mode: ['css', 'legacy'], avoid: 'tr' }
         };
 
         html2pdf().set(opt).from(element).save().then(() => {
             delBtns.forEach(b => b.style.display = 'inline-block');
-            // إزالة الكلاس بعد الانتهاء
-            element.classList.remove('pdf-export-mode');
         });
     }
 
@@ -847,6 +843,15 @@
         const areaId = isAllMode ? 'allClassesArea' : 'printableArea';
         const printableArea = document.getElementById(areaId).cloneNode(true);
         printableArea.querySelectorAll('.del-btn').forEach(btn => btn.remove());
+        
+        // حل مشكلة تداخل الفصول في Word بإضافة Page Break حقيقي بينها
+        const pages = printableArea.querySelectorAll('.class-page');
+        for (let i = 1; i < pages.length; i++) {
+            const pageBreak = document.createElement('br');
+            pageBreak.setAttribute('clear', 'all');
+            pageBreak.setAttribute('style', 'page-break-before: always;');
+            pages[i].parentNode.insertBefore(pageBreak, pages[i]);
+        }
         
         const fileName = isAllMode ? `جميع_الكشوفات.doc` : `كشف_متابعة_${document.getElementById('className').value || 'الفصل'}.doc`;
 
@@ -859,12 +864,12 @@
                     @page Section1 { size: 841.9pt 595.3pt; mso-page-orientation: landscape; margin: 1.27cm; }
                     div.Section1 { page: Section1; }
                     body { font-family: 'Arial', sans-serif; direction: rtl; }
-                    table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 5px;}
-                    th, td { border: 1px solid #000; text-align: center; font-size: 10pt; padding: 5px 2px; height: 22px;}
+                    table.data-table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 5px;}
+                    table.data-table th, table.data-table td { border: 1px solid #000; text-align: center; font-size: 10pt; padding: 5px 2px; height: 22px;}
+                    table.header-table { width: 100%; border: none; margin-bottom: 12px; table-layout: fixed; }
+                    table.header-table td { border: none; padding: 0; vertical-align: middle; }
                     .day-separator-left { border-left: 3px solid #000 !important; }
-                    .report-header { display: flex; justify-content: space-between; margin-bottom: 12px; font-weight: bold; font-size: 11pt; }
                     .student-row:nth-child(even) { background-color: #f4f9f4; }
-                    .class-page { page-break-after: always; }
                 </style>
             </head>
             <body>
