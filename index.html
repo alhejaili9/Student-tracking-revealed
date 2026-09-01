@@ -154,7 +154,7 @@
             margin: auto;
             padding: 12px 10px 8px 10px;
             box-shadow: 0 0 15px rgba(0,0,0,0.1);
-            display: none; /* يتم التحكم بها عبر الجافاسكربت */
+            display: none; 
             box-sizing: border-box;
             border-radius: 4px;
         }
@@ -163,7 +163,7 @@
             background: transparent;
             width: 287mm; 
             margin: auto;
-            display: none; /* يتم التحكم بها عبر الجافاسكربت */
+            display: none; 
             box-shadow: none;
             padding: 0;
         }
@@ -216,13 +216,11 @@
         .m-col { width: 28px; }
         .col-small { width: 31px; }
 
-        /* تعديلات الطباعة القوية لضمان عدم تداخل الفصول وإخفاء المخفي */
         @media print {
             @page { size: A4 landscape; margin: 10mm 6mm 6mm 6mm; }
             body { background: white; padding: 0; margin: 0; }
             .app-header, .controls, .save-manager, .del-btn, .instructions { display: none !important; }
             
-            /* تم إزالة display: block !important لترك الجافاسكربت تتحكم في من يظهر ومن يختفي */
             .page-container, .all-mode-container { 
                 width: 100% !important; 
                 box-shadow: none !important; 
@@ -237,7 +235,6 @@
                 page-break-inside: auto; 
             }
             
-            /* أي كشف يليه كشف آخر، يجب أن يبدأ في صفحة جديدة تماماً لمنع التداخل */
             .class-page + .class-page {
                 page-break-before: always !important;
                 break-before: page !important;
@@ -269,7 +266,6 @@
         </ul>
     </div>
 
-    <!-- مدير الفصول المحفوظة والأزرار الجديدة -->
     <div class="save-manager">
         <strong>إدارة الفصول:</strong>
         <select id="savedClassesDropdown" onchange="loadSelectedClass()">
@@ -281,15 +277,15 @@
         <button onclick="clearAllData()" style="background:#c62828;">🗑️ مسح الكل</button>
     </div>
 
-    <!-- إعدادات إظهار/إخفاء عناصر الرأس -->
+    <!-- إضافة خيار إخفاء عنوان الكشف هنا -->
     <div class="toggle-group">
         <label class="toggle-item"><input type="checkbox" id="showMinistry" checked onchange="toggleHeaderElements()"> وزارة التعليم</label>
         <label class="toggle-item"><input type="checkbox" id="showSchool" checked onchange="toggleHeaderElements()"> المدرسة</label>
         <label class="toggle-item"><input type="checkbox" id="showTeacher" checked onchange="toggleHeaderElements()"> المعلم</label>
         <label class="toggle-item"><input type="checkbox" id="showWeek" checked onchange="toggleHeaderElements()"> الأسبوع</label>
+        <label class="toggle-item"><input type="checkbox" id="showSubjectTitle" checked onchange="toggleHeaderElements()"> عنوان الكشف (كشف متابعة..)</label>
     </div>
 
-    <!-- المدخلات الأساسية -->
     <div class="input-grid">
         <div class="input-field">
             <label>اسم المدرسة:</label>
@@ -354,7 +350,6 @@
     </div>
 </div>
 
-<!-- ورقة الكشف - وضع التعديل الفردي -->
 <div class="page-container" id="printableArea">
     <div class="report-header">
         <div id="rightHeader">
@@ -362,7 +357,8 @@
             <br id="brMinistry">
             <span id="headerSchool"></span>
         </div>
-        <div class="report-title" style="font-size: 16px;">كشف متابعة مادة <span id="headerSubject"></span></div>
+        <!-- إضافة ID للعنوان للتحكم بإخفائه -->
+        <div class="report-title" id="reportTitleContainer" style="font-size: 16px;">كشف متابعة مادة <span id="headerSubject"></span></div>
         <div id="leftHeader">
             <span id="textTeacher">المعلم: <span id="headerTeacher"></span></span>
             <br id="brTeacher">
@@ -395,7 +391,6 @@
     </table>
 </div>
 
-<!-- منطقة وضع (استعراض الكل) -->
 <div class="all-mode-container" id="allClassesArea"></div>
 
 <script>
@@ -420,7 +415,6 @@
         }
     }
 
-    // إضافة فصل جديد (تصفير الخانات مع الحفاظ على المدرسة والمعلم)
     function startNewClass() {
         document.getElementById('className').value = '';
         document.getElementById('manualNames').value = '';
@@ -459,7 +453,8 @@
                 ministry: document.getElementById('showMinistry').checked,
                 school: document.getElementById('showSchool').checked,
                 teacher: document.getElementById('showTeacher').checked,
-                week: document.getElementById('showWeek').checked
+                week: document.getElementById('showWeek').checked,
+                subjectTitle: document.getElementById('showSubjectTitle').checked
             }
         };
 
@@ -488,6 +483,7 @@
         document.getElementById('showSchool').checked = data.toggles?.school ?? true;
         document.getElementById('showTeacher').checked = data.toggles?.teacher ?? true;
         document.getElementById('showWeek').checked = data.toggles?.week ?? true;
+        document.getElementById('showSubjectTitle').checked = data.toggles?.subjectTitle ?? true;
         
         names = data.names ? [...data.names] : [];
         document.getElementById('manualNames').value = names.join('\n');
@@ -511,6 +507,7 @@
         const showSchool = document.getElementById('showSchool').checked;
         const showTeacher = document.getElementById('showTeacher').checked;
         const showWeek = document.getElementById('showWeek').checked;
+        const showSubjectTitle = document.getElementById('showSubjectTitle').checked;
 
         const textMinistry = document.getElementById('textMinistry');
         const brMinistry = document.getElementById('brMinistry');
@@ -527,9 +524,11 @@
         if(textTeacher) textTeacher.style.display = showTeacher ? 'inline' : 'none';
         if(textWeek) textWeek.style.display = showWeek ? 'inline' : 'none';
         if(brTeacher) brTeacher.style.display = (showTeacher && showWeek) ? 'inline' : 'none';
+
+        const reportTitleContainer = document.getElementById('reportTitleContainer');
+        if(reportTitleContainer) reportTitleContainer.style.display = showSubjectTitle ? 'block' : 'none';
     }
 
-    // دالة الفورمات للأرقام (تدعم تمرير ستايل مخصص لاستعراض الكل)
     function formatNumber(numStr, overrideStyle) {
         if (!numStr && numStr !== 0) return '';
         const style = overrideStyle || document.getElementById('numberStyle').value;
@@ -571,7 +570,6 @@
         root.style.setProperty('--bg-striped', themes[theme].bg);
     }
 
-    // وضع إنشاء كشف مفرد (الوضع العادي للتعديل)
     function generateKashf() {
         const manual = document.getElementById('manualNames').value;
         if(manual.trim()) names = manual.split('\n').filter(n => n.trim());
@@ -632,7 +630,6 @@
         names[index] = newName.trim();
     }
 
-    // وضع استعراض جميع الفصول في صفحة واحدة
     function viewAllClasses() {
         if (Object.keys(appData).length === 0) {
             return alert("لا توجد فصول محفوظة لاستعراضها. قم بحفظ بعض الفصول أولاً.");
@@ -649,7 +646,6 @@
         allArea.style.display = 'block';
     }
 
-    // بناء قالب HTML للعرض الجماعي
     function generateReadOnlyClassHTML(data) {
         const nStyle = data.numberStyle;
         const yr = formatNumber(data.year || '1448', nStyle);
@@ -678,6 +674,8 @@
         const teachSpan = data.toggles.teacher ? 'inline' : 'none';
         const wkSpan = data.toggles.week ? 'inline' : 'none';
         const brTeach = (data.toggles.teacher && data.toggles.week) ? '<br>' : '';
+        
+        const titleDisplay = (data.toggles.subjectTitle !== false) ? 'block' : 'none';
 
         return `
         <div class="class-page">
@@ -686,7 +684,7 @@
                     <span style="display: ${minSpan}">وزارة التعليم</span>${brMin}
                     <span style="display: ${schSpan}">${data.school}</span>
                 </div>
-                <div class="report-title" style="font-size: 16px;">كشف متابعة مادة ${data.subject}</div>
+                <div class="report-title" style="font-size: 16px; display: ${titleDisplay};">كشف متابعة مادة ${data.subject}</div>
                 <div style="display: ${teachBlock}">
                     <span style="display: ${teachSpan}">المعلم: ${data.teacher}</span>${brTeach}
                     <span style="display: ${wkSpan}">الأسبوع: ${wk || '...........'}</span>
@@ -717,19 +715,20 @@
         `;
     }
 
-    // دوال تصدير الإكسل المشتركة
     function createSheetForClass(data) {
         const nStyle = data.numberStyle || 'ar';
         const days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس'];
         const subHeaders = ['غياب', 'كتاب', 'مشاركة', 'سلوك', 'ملاحظة'];
+        
         const ministry = data.toggles.ministry ? 'وزارة التعليم' : '';
         const school = data.toggles.school ? data.school : '';
         const teacher = data.toggles.teacher ? 'المعلم: ' + data.teacher : '';
         const weekText = data.toggles.week ? 'الأسبوع: ' + formatNumber(data.week, nStyle) : '';
         const yearText = 'العام: ' + formatNumber(data.year || '1448', nStyle);
+        const subjectText = data.toggles.subjectTitle !== false ? 'كشف متابعة مادة: ' + data.subject : '';
         
         let arr = [];
-        arr.push([ministry, school, '', '', '', 'كشف متابعة مادة: ' + data.subject, '', '', '', '', '', '', '', '', '', teacher, '', '', weekText, yearText]);
+        arr.push([ministry, school, '', '', '', subjectText, '', '', '', '', '', '', '', '', '', teacher, '', '', weekText, yearText]);
         arr.push([]); 
 
         let dayRow = ['م', 'الفصل: ' + formatNumber(data.className, nStyle) + ' - الاسم'];
@@ -776,7 +775,8 @@
                     ministry: document.getElementById('showMinistry').checked,
                     school: document.getElementById('showSchool').checked,
                     teacher: document.getElementById('showTeacher').checked,
-                    week: document.getElementById('showWeek').checked
+                    week: document.getElementById('showWeek').checked,
+                    subjectTitle: document.getElementById('showSubjectTitle').checked
                 }
             };
             const ws = createSheetForClass(currentData);
@@ -786,7 +786,6 @@
         }
     }
 
-    // تصدير PDF
     function exportToPDF() {
         const isAllMode = document.getElementById('allClassesArea').style.display === 'block';
         if (!isAllMode && names.length === 0) return alert("يرجى إنشاء الكشف أولاً قبل التصدير");
@@ -813,7 +812,6 @@
         });
     }
 
-    // تصدير Word
     function exportToWord() {
         const isAllMode = document.getElementById('allClassesArea').style.display === 'block';
         if (!isAllMode && names.length === 0) return alert("يرجى إنشاء الكشف أولاً قبل التصدير");
