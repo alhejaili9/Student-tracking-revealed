@@ -76,15 +76,16 @@
         .instructions {
             background-color: #e3f2fd;
             border-right: 5px solid #2196f3;
-            padding: 12px 15px;
+            padding: 15px;
             margin-bottom: 20px;
-            font-size: 13px;
+            font-size: 14px;
             border-radius: 6px;
             line-height: 1.6;
         }
 
-        .instructions h4 { margin: 0 0 6px 0; color: #0d47a1; font-size: 14px; }
+        .instructions h4 { margin: 0 0 10px 0; color: #0d47a1; font-size: 15px; }
         .instructions ul { margin: 0; padding-right: 20px; }
+        .instructions li { margin-bottom: 5px; }
 
         .input-grid {
             display: grid;
@@ -153,7 +154,7 @@
             margin: auto;
             padding: 12px 10px 8px 10px;
             box-shadow: 0 0 15px rgba(0,0,0,0.1);
-            display: none;
+            display: none; /* يتم التحكم بها عبر الجافاسكربت */
             box-sizing: border-box;
             border-radius: 4px;
         }
@@ -162,7 +163,7 @@
             background: transparent;
             width: 287mm; 
             margin: auto;
-            display: none;
+            display: none; /* يتم التحكم بها عبر الجافاسكربت */
             box-shadow: none;
             padding: 0;
         }
@@ -215,42 +216,34 @@
         .m-col { width: 28px; }
         .col-small { width: 31px; }
 
-        /* تعديلات الطباعة القوية لضمان عدم تداخل الفصول */
+        /* تعديلات الطباعة القوية لضمان عدم تداخل الفصول وإخفاء المخفي */
         @media print {
             @page { size: A4 landscape; margin: 10mm 6mm 6mm 6mm; }
             body { background: white; padding: 0; margin: 0; }
             .app-header, .controls, .save-manager, .del-btn, .instructions { display: none !important; }
             
-            .page-container { 
-                display: block !important; 
+            /* تم إزالة display: block !important لترك الجافاسكربت تتحكم في من يظهر ومن يختفي */
+            .page-container, .all-mode-container { 
                 width: 100% !important; 
                 box-shadow: none !important; 
                 padding: 0 !important; 
-                margin-top: 0 !important; 
-            }
-            .all-mode-container { 
-                display: block !important; 
-                width: 100% !important; 
                 margin: 0 !important; 
-                padding: 0 !important;
             }
             
-            /* الحفاظ على الكشف كوحدة واحدة وكسر الصفحة قبله إذا كان هناك كشف آخر */
             .class-page {
                 box-shadow: none !important;
                 margin: 0 !important;
                 padding: 0 !important;
-                page-break-inside: auto; /* يسمح بكسر الصفحة لو كان الفصل طويل (أكثر من 30 طالب) */
+                page-break-inside: auto; 
             }
             
             /* أي كشف يليه كشف آخر، يجب أن يبدأ في صفحة جديدة تماماً لمنع التداخل */
             .class-page + .class-page {
                 page-break-before: always !important;
                 break-before: page !important;
-                margin-top: 15px !important; /* مسافة بسيطة من أعلى الورقة الجديدة */
+                margin-top: 15px !important; 
             }
 
-            /* منع قص الصف (الطالب) من المنتصف */
             table { page-break-inside: auto; }
             tr { page-break-inside: avoid; break-inside: avoid; page-break-after: auto; }
         }
@@ -265,6 +258,17 @@
 
 <div class="controls">
     
+    <div class="instructions">
+        <h4>💡 تعليمات استخدام الأداة:</h4>
+        <ul>
+            <li>قم بتعبئة بيانات <b>المدرسة، المعلم، المادة، الفصل، والأسبوع</b> في الخانات المخصصة.</li>
+            <li>لإضافة الطلاب: اختر ملف <b>إكسل</b> (الأسماء في العمود الأول) أو قم بـ <b>لصق الأسماء</b> في المربع السفلي.</li>
+            <li>لإضافة فصول متعددة: قم بإدخال بيانات الفصل ثم اضغط على زر <b>(💾 حفظ)</b>، ثم اضغط <b>(➕ فصل جديد)</b> لإدخال الفصل التالي وهكذا.</li>
+            <li>يمكنك استعراض وطباعة جميع الفصول المحفوظة دفعة واحدة بالضغط على <b>(📂 استعراض الكل)</b>.</li>
+            <li>يتم حفظ فصولك وإعداداتك بشكل تلقائي داخل متصفحك الحالي، ولن تفقدها عند إغلاق الصفحة.</li>
+        </ul>
+    </div>
+
     <!-- مدير الفصول المحفوظة والأزرار الجديدة -->
     <div class="save-manager">
         <strong>إدارة الفصول:</strong>
@@ -416,7 +420,7 @@
         }
     }
 
-    // إضافة فصل جديد (تصفير الخانات)
+    // إضافة فصل جديد (تصفير الخانات مع الحفاظ على المدرسة والمعلم)
     function startNewClass() {
         document.getElementById('className').value = '';
         document.getElementById('manualNames').value = '';
@@ -427,7 +431,7 @@
         document.getElementById('printableArea').style.display = 'none';
         document.getElementById('allClassesArea').style.display = 'none';
         
-        alert("تم تفريغ الخانات للبدء بإنشاء فصل جديد.");
+        alert("تم تفريغ الخانات (ما عدا بياناتك الأساسية) للبدء بإنشاء فصل جديد.");
     }
 
     function saveCurrentClass() {
@@ -753,7 +757,7 @@
             if(Object.keys(appData).length === 0) return alert("لا توجد فصول محفوظة للتصدير.");
             for (const cls in appData) {
                 const ws = createSheetForClass(appData[cls]);
-                const safeName = cls.replace(/[\\/*?:\[\]]/g, '-').substring(0, 31);
+                const safeName = cls.replace(/[\/*?:\[\]]/g, '-').substring(0, 31);
                 XLSX.utils.book_append_sheet(wb, ws, safeName);
             }
             XLSX.writeFile(wb, `جميع_الكشوفات.xlsx`);
@@ -776,7 +780,7 @@
                 }
             };
             const ws = createSheetForClass(currentData);
-            const safeName = (currentData.className || 'الفصل').replace(/[\\/*?:\[\]]/g, '-').substring(0, 31);
+            const safeName = (currentData.className || 'الفصل').replace(/[\/*?:\[\]]/g, '-').substring(0, 31);
             XLSX.utils.book_append_sheet(wb, ws, safeName);
             XLSX.writeFile(wb, `كشف_متابعة_${safeName}.xlsx`);
         }
