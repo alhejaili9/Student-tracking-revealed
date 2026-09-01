@@ -6,7 +6,8 @@
     <title>أداة الشاعري - منشئ كشوف المتابعة المطوّر</title>
     <!-- المكتبات الخارجية -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
         :root {
@@ -236,7 +237,7 @@
             table.data-table thead { display: table-row-group; }
         }
 
-        /* إعداد ثابت للتصدير: مساحة A4 عرضية بعد هوامش 5 مم = 287 × 200 مم */
+        /* مقاس مساحة الطباعة في A4 عرضي، بعد هوامش 5 مم: 287 × 200 مم */
         .pdf-export-mode {
             width: 287mm !important;
             margin: 0 !important;
@@ -252,17 +253,7 @@
             margin: 0 !important;
             padding: 0 !important;
             overflow: hidden;
-            break-after: page;
-            page-break-after: always;
-            break-inside: avoid;
-            page-break-inside: avoid;
         }
-        .pdf-export-mode .class-page:last-child {
-            break-after: auto;
-            page-break-after: auto;
-        }
-        .pdf-export-mode table { break-inside: avoid; page-break-inside: avoid; }
-        .pdf-export-mode tr { break-inside: avoid; page-break-inside: avoid; }
 
     </style>
 </head>
@@ -812,6 +803,11 @@
         const isAllMode = document.getElementById('allClassesArea').style.display === 'block';
         if (!isAllMode && names.length === 0) return alert("يرجى إنشاء الكشف أولاً قبل التصدير");
 
+        // نستخدم المكتبتين المحملتين صراحة، لا المكتبات الداخلية في html2pdf.
+        if (!window.jspdf || !window.jspdf.jsPDF || !window.html2canvas) {
+            return alert("تعذر تحميل مكتبات PDF. تحقق من اتصال الإنترنت ثم حدّث الصفحة.");
+        }
+
         const source = document.getElementById(isAllMode ? 'allClassesArea' : 'printableArea');
         const pages = Array.from(source.querySelectorAll('.class-page'));
         if (!pages.length) return alert("لا توجد صفحة جاهزة للتصدير");
@@ -819,44 +815,38 @@
         const fileName = isAllMode
             ? 'جميع_الكشوفات.pdf'
             : `كشف_متابعة_${document.getElementById('className').value || 'الفصل'}.pdf`;
-
-        // تصدير كل فصل كصفحة مستقلة يمنع html2pdf من تقسيم الجدول بين صفحتين.
+        const { jsPDF } = window.jspdf;
         const originalDocDir = document.documentElement.dir;
         const stage = document.createElement('div');
         stage.className = 'pdf-export-mode';
         stage.dir = 'rtl';
-        stage.style.position = 'fixed';
-        stage.style.left = '-10000px';
-        stage.style.top = '0';
-        stage.style.zIndex = '-1';
+        stage.style.cssText = 'position:fixed; left:-10000px; top:0; z-index:-1;';
         document.body.appendChild(stage);
         document.documentElement.dir = 'ltr';
 
         try {
-            const pdf = new jspdf.jsPDF({ unit: 'mm', format: 'a4', orientation: 'landscape' });
-
+            const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'landscape' });
             for (let index = 0; index < pages.length; index++) {
                 const page = pages[index].cloneNode(true);
                 page.querySelectorAll('.del-btn').forEach(btn => btn.remove());
                 page.querySelectorAll('[contenteditable="true"]').forEach(el => el.removeAttribute('contenteditable'));
                 stage.appendChild(page);
 
-                const canvas = await html2canvas(page, {
+                const canvas = await window.html2canvas(page, {
                     scale: 2,
                     useCORS: true,
                     backgroundColor: '#ffffff',
                     logging: false,
                     windowWidth: Math.round(287 * 96 / 25.4)
                 });
-                const image = canvas.toDataURL('image/jpeg', 1.0);
                 if (index > 0) pdf.addPage('a4', 'landscape');
-                pdf.addImage(image, 'JPEG', 5, 5, 287, 200, undefined, 'FAST');
-                stage.removeChild(page);
+                pdf.addImage(canvas, 'JPEG', 5, 5, 287, 200, undefined, 'FAST');
+                page.remove();
             }
             pdf.save(fileName);
         } catch (error) {
-            console.error(error);
-            alert('تعذر إنشاء ملف PDF. أعد المحاولة بعد تحديث الصفحة.');
+            console.error('PDF export error:', error);
+            alert("تعذر إنشاء ملف PDF. افتح أدوات المطور لمعرفة الخطأ أو حدّث الصفحة ثم أعد المحاولة.");
         } finally {
             document.documentElement.dir = originalDocDir;
             stage.remove();
