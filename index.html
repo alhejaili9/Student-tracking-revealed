@@ -3,207 +3,390 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منشئ كشوف المتابعة المطوّر</title>
+    <title>أداة الشاعري - منشئ كشوف المتابعة المطوّر</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
     <style>
         :root {
-            --bg-green: #e9f5e9;
-            --border: #000;
+            --bg-striped: #e9f5e9;
+            --header-bg: #ffffff;
+            --border-color: #000000;
+            --thick-border-color: #000000;
         }
 
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Arial', 'Segoe UI', sans-serif;
             margin: 0;
-            padding: 10px;
-            background-color: #f4f4f4;
+            padding: 15px;
+            background-color: #f4f6f9;
+            color: #333;
+        }
+
+        /* رأس التطبيق الإداري - يظهر اسم أداة الشاعري هنا فقط */
+        .app-header {
+            max-width: 1050px;
+            margin: 0 auto 15px auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #1b5e20, #2e7d32);
+            color: white;
+            padding: 14px 22px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+        }
+
+        .app-header h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .app-header .tool-badge {
+            background: rgba(255, 255, 255, 0.22);
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         /* أدوات التحكم */
         .controls {
             background: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            max-width: 1000px;
-            margin: auto;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 0 auto 20px auto;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            max-width: 1050px;
+            box-sizing: border-box;
         }
 
         /* قسم التعليمات */
         .instructions {
             background-color: #e3f2fd;
             border-right: 5px solid #2196f3;
-            padding: 10px;
-            margin-bottom: 15px;
+            padding: 12px 15px;
+            margin-bottom: 20px;
             font-size: 13px;
-            border-radius: 4px;
+            border-radius: 6px;
+            line-height: 1.6;
         }
 
-        .instructions h4 { margin: 0 0 5px 0; color: #0d47a1; }
+        .instructions h4 { margin: 0 0 6px 0; color: #0d47a1; font-size: 14px; }
         .instructions ul { margin: 0; padding-right: 20px; }
 
-        .input-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 12px;
+            margin-bottom: 15px;
         }
 
-        input, textarea, button {
-            padding: 8px;
+        .input-field {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .input-field label {
+            font-size: 12px;
+            font-weight: bold;
+            color: #444;
+        }
+
+        input[type="text"], input[type="number"], select, textarea {
+            padding: 9px 12px;
             border: 1px solid #ccc;
-            border-radius: 4px;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 13px;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: #2e7d32;
+            outline: none;
+        }
+
+        input[type="file"] {
+            padding: 7px;
+            border: 1px dashed #bbb;
+            border-radius: 6px;
+            background: #fafafa;
+            cursor: pointer;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
         }
 
         button {
-            background-color: #2e7d32;
+            padding: 10px 18px;
             color: white;
             cursor: pointer;
             border: none;
-            flex-grow: 1;
+            border-radius: 6px;
             font-weight: bold;
+            font-size: 13px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        /* الجدول */
+        button:hover {
+            opacity: 0.92;
+            transform: translateY(-1px);
+        }
+
+        .btn-generate { background-color: #2e7d32; flex: 2; min-width: 140px; }
+        .btn-print { background-color: #0277bd; flex: 1; min-width: 100px; }
+        .btn-excel { background-color: #15803d; flex: 1; min-width: 110px; }
+        .btn-pdf { background-color: #c2410c; flex: 1; min-width: 110px; }
+        .btn-word { background-color: #1d4ed8; flex: 1; min-width: 110px; }
+
+        /* منطقة ورق الكشف */
         .page-container {
             background: white;
             width: 287mm; 
             margin: auto;
+            padding: 12px 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
             display: none;
+            box-sizing: border-box;
+            border-radius: 4px;
+        }
+
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 13px;
+            padding: 0 5px;
+        }
+
+        .report-header div {
+            line-height: 1.4;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             table-layout: fixed;
+            background-color: #fff;
         }
 
         th, td {
-            border: 1px solid var(--border);
+            border: 1px solid var(--border-color);
             text-align: center;
             font-size: 11px;
-            padding: 2px;
-            height: 18px; 
+            padding: 3px 2px;
+            height: 20px; 
             overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        /* خط عريض مميز ليفصل كل يوم بعد عمود الملاحظة */
+        .day-separator-left {
+            border-left: 3px solid var(--thick-border-color) !important;
         }
 
         .header-top th {
             font-weight: bold;
-            background: #fff;
+            background: var(--header-bg);
+        }
+
+        .sub-header th {
+            background: var(--header-bg);
+            font-size: 10px;
+            padding: 4px 1px;
         }
 
         .class-name-cell {
-            font-size: 13px;
-            line-height: 1.2;
+            font-size: 12px;
+            line-height: 1.3;
         }
 
         .day-header {
-            font-size: 10px;
-            background-color: #fff;
+            font-size: 11px;
+            background-color: var(--header-bg);
             white-space: nowrap;
+            padding: 7px 2px; /* زياده الفراغ بعد/حول اليوم */
+            letter-spacing: 0.5px;
         }
 
         .student-row:nth-child(even) {
-            background-color: var(--bg-green);
+            background-color: var(--bg-striped);
         }
 
         .name-col {
             width: 200px;
             text-align: right;
-            padding-right: 5px;
+            padding-right: 6px;
             white-space: nowrap;
             position: relative;
         }
 
         .del-btn {
-            color: red;
+            color: #d32f2f;
             cursor: pointer;
             font-weight: bold;
             margin-left: 5px;
-            font-size: 14px;
+            font-size: 13px;
             display: inline-block;
             border: none;
             background: none;
+            padding: 0 3px;
         }
 
-        .m-col { width: 25px; }
-        .col-small { width: 32px; }
-
-        .report-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-            font-weight: bold;
-            font-size: 12px;
+        .del-btn:hover {
+            color: #9a0007;
         }
 
+        .m-col { width: 28px; }
+        .col-small { width: 31px; }
+
+        /* الطباعة */
         @media print {
             @page {
                 size: A4 landscape;
-                margin: 5mm;
+                margin: 15mm 6mm 6mm 6mm; /* تم تنزيل الكشف للأسفل لمنع الالتصاق بأعلى الورقة */
             }
-            .controls, .del-btn, .instructions { display: none !important; }
-            .page-container { display: block !important; }
-            body { background: white; padding: 0; }
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+            .app-header, .controls, .del-btn, .instructions {
+                display: none !important;
+            }
+            .page-container {
+                display: block !important;
+                width: 100% !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin-top: 15px !important; /* مسافة إضافية في الطباعة */
+            }
         }
     </style>
 </head>
 <body>
 
+<div class="app-header">
+    <h2>منشئ كشوف المتابعة المطوّر</h2>
+    <span class="tool-badge">أداة الشاعري</span>
+</div>
+
 <div class="controls">
-    <h3 style="margin-top:0; color:#2e7d32;">إعداد كشف المتابعة</h3>
-    
     <div class="instructions">
         <h4>💡 تعليمات الاستخدام:</h4>
         <ul>
-            <li>قم بتعبئة بيانات <b>المدرسة، المعلم، المادة، والفصل</b> في الخانات المخصصة.</li>
+            <li>قم بتعبئة بيانات <b>المدرسة، المعلم، المادة، الفصل، والأسبوع</b>.</li>
+            <li>اختر <b>ثيم الألوان</b> ونوع <b>الأرقام (عربية / إنجليزية)</b> حسب رغبتك.</li>
             <li>لإضافة الطلاب: اختر ملف <b>إكسل</b> (الأسماء في العمود الأول) أو قم بـ <b>لصق الأسماء</b> في المربع السفلي.</li>
-            <li>اضغط على <b>"إنشاء الكشف"</b> لتوليد الجدول.</li>
-            <li>يمكنك <b>تعديل أي اسم</b> مباشرة بالضغط عليه، أو <b>حذفه</b> بالضغط على علامة (X).</li>
-            <li>عند الطباعة: تأكد من ضبط إعدادات الورق على <b>Landscape (عرضي)</b> لضمان ظهور الكشف كاملاً.</li>
+            <li>اضغط على <b>"إنشاء الكشف"</b> لتوليد الجدول، ويمكنك التعديل أو الحذف المباشر.</li>
+            <li>يمكنك <b>الطباعة الفورية</b> أو تصدير الكشف بـ صيغ <b>Excel</b>، <b>PDF</b>، أو <b>Word</b>.</li>
         </ul>
     </div>
 
-    <div class="input-row">
-        <input type="text" id="schoolName" placeholder="اسم المدرسة" value="مدارس العقيق الأهلية">
-        <input type="text" id="teacherName" placeholder="اسم المعلم" value="عبدالرحمن سعد الحجيلي">
-        <input type="text" id="subjectInput" placeholder="اسم المادة" value="الرياضيات">
-        <input type="text" id="className" placeholder="الفصل">
+    <div class="input-grid">
+        <div class="input-field">
+            <label>اسم المدرسة:</label>
+            <input type="text" id="schoolName" placeholder="اسم المدرسة" value="مدارس العقيق الأهلية">
+        </div>
+        <div class="input-field">
+            <label>اسم المعلم:</label>
+            <input type="text" id="teacherName" placeholder="اسم المعلم" value="عبدالرحمن سعد الحجيلي">
+        </div>
+        <div class="input-field">
+            <label>اسم المادة:</label>
+            <input type="text" id="subjectInput" placeholder="اسم المادة" value="الرياضيات">
+        </div>
+        <div class="input-field">
+            <label>الفصل / الصف:</label>
+            <input type="text" id="className" placeholder="مثال: 1/3" value="1/3">
+        </div>
+        <div class="input-field">
+            <label>رقم الأسبوع:</label>
+            <input type="text" id="weekInput" placeholder="مثال: الأول أو 1" value="1">
+        </div>
+        <div class="input-field">
+            <label>نوع الأرقام:</label>
+            <select id="numberStyle" onchange="renderTable()">
+                <option value="ar">عربية (١، ٢، ٣، ...)</option>
+                <option value="en">إنجليزية (1, 2, 3, ...)</option>
+            </select>
+        </div>
+        <div class="input-field">
+            <label>ثيم الألوان:</label>
+            <select id="colorTheme" onchange="applyTheme()">
+                <option value="green">الأخضر الهادئ (الافتراضي)</option>
+                <option value="blue">الأزرق السماوي</option>
+                <option value="gray">الرمادي الكلاسيكي</option>
+                <option value="amber">الذهبي / الرملي</option>
+                <option value="teal">التركوازي العصيري</option>
+            </select>
+        </div>
     </div>
-    <div class="input-row">
-        <input type="file" id="excelFile" accept=".xlsx, .xls" style="flex-grow:1">
-        <button onclick="generateKashf()">إنشاء الكشف</button>
-        <button onclick="window.print()" style="background:#0277bd">طباعة</button>
+
+    <div class="input-grid" style="grid-template-columns: 1fr 2fr;">
+        <div class="input-field">
+            <label>استيراد من ملف Excel:</label>
+            <input type="file" id="excelFile" accept=".xlsx, .xls">
+        </div>
+        <div class="input-field">
+            <label>أو لصق الأسماء هنا (اسم في كل سطر):</label>
+            <textarea id="manualNames" rows="2" placeholder="علي أحمد المحمد&#10;خالد عبدالله السالم&#10;..."></textarea>
+        </div>
     </div>
-    <textarea id="manualNames" rows="3" placeholder="أو الصق الأسماء هنا (اسم في كل سطر)" style="width:100%; box-sizing:border-box"></textarea>
+
+    <div class="action-buttons">
+        <button class="btn-generate" onclick="generateKashf()">✨ إنشاء الكشف</button>
+        <button class="btn-print" onclick="window.print()">🖨️ طباعة</button>
+        <button class="btn-excel" onclick="exportToExcel()">📊 تصدير Excel</button>
+        <button class="btn-pdf" onclick="exportToPDF()">📄 حفظ PDF</button>
+        <button class="btn-word" onclick="exportToWord()">📝 تصدير Word</button>
+    </div>
 </div>
 
 <div class="page-container" id="printableArea">
     <div class="report-header">
         <div>وزارة التعليم<br><span id="headerSchool"></span></div>
-        <div style="font-size: 16px; align-self: center;">كشف متابعة مادة <span id="headerSubject"></span></div>
-        <div>المعلم: <span id="headerTeacher"></span><br>الأسبوع: ...........</div>
+        <div class="report-title">كشف متابعة مادة <span id="headerSubject"></span></div>
+        <div>المعلم: <span id="headerTeacher"></span><br>الأسبوع: <span id="headerWeek">...........</span></div>
     </div>
 
     <table>
         <thead>
             <tr class="header-top">
                 <th rowspan="2" class="m-col">م</th>
-                <th rowspan="2" class="name-col class-name-cell">
+                <th rowspan="2" class="name-col class-name-cell day-separator-left">
                     الفصـل: <span id="displayClass"></span><br>
                     الاســــــــــــــــــــــــــــــــم
                 </th>
-                <th colspan="5" class="day-header">الأحد &nbsp;&nbsp; / &nbsp;&nbsp; / 1447هـ</th>
-                <th colspan="5" class="day-header">الاثنين &nbsp;&nbsp; / &nbsp;&nbsp; / 1447هـ</th>
-                <th colspan="5" class="day-header">الثلاثاء &nbsp;&nbsp; / &nbsp;&nbsp; / 1447هـ</th>
-                <th colspan="5" class="day-header">الأربعاء &nbsp;&nbsp; / &nbsp;&nbsp; / 1447هـ</th>
-                <th colspan="5" class="day-header">الخميس &nbsp;&nbsp; / &nbsp;&nbsp; / 1447هـ</th>
+                <th colspan="5" class="day-header day-separator-left">الأحد &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span class="yr-digit">1447</span>هـ</th>
+                <th colspan="5" class="day-header day-separator-left">الاثنين &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span class="yr-digit">1447</span>هـ</th>
+                <th colspan="5" class="day-header day-separator-left">الثلاثاء &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span class="yr-digit">1447</span>هـ</th>
+                <th colspan="5" class="day-header day-separator-left">الأربعاء &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span class="yr-digit">1447</span>هـ</th>
+                <th colspan="5" class="day-header day-separator-left">الخميس &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span class="yr-digit">1447</span>هـ</th>
             </tr>
             <tr class="sub-header">
-                <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small">ملاحظة</th>
-                <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small">ملاحظة</th>
-                <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small">ملاحظة</th>
-                <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small">ملاحظة</th>
-                <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small">ملاحظة</th>
+                <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small day-separator-left">ملاحظة</th>
+                <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small day-separator-left">ملاحظة</th>
+                <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small day-separator-left">ملاحظة</th>
+                <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small day-separator-left">ملاحظة</th>
+                <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small day-separator-left">ملاحظة</th>
             </tr>
         </thead>
         <tbody id="tableBody"></tbody>
@@ -213,7 +396,23 @@
 <script>
     let names = [];
 
+    // تحويل الأرقام بين العربية والإنجليزية
+    function formatNumber(numStr) {
+        if (!numStr && numStr !== 0) return '';
+        const style = document.getElementById('numberStyle').value;
+        const str = String(numStr);
+        if (style === 'en') {
+            const enDigits = {'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9'};
+            return str.replace(/[٠-٩]/g, d => enDigits[d]);
+        } else {
+            const arDigits = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+            return str.replace(/\d/g, d => arDigits[d]);
+        }
+    }
+
+    // قراءة ملف Excel
     document.getElementById('excelFile').onchange = function(e) {
+        if(!e.target.files.length) return;
         const reader = new FileReader();
         reader.onload = (event) => {
             const data = new Uint8Array(event.target.result);
@@ -221,20 +420,46 @@
             const sheet = workbook.Sheets[workbook.SheetNames[0]];
             const json = XLSX.utils.sheet_to_json(sheet, {header: 1});
             names = json.map(r => r[0]).filter(n => n && isNaN(n));
-            alert("تم استيراد " + names.length + " اسماً.");
+            alert("تم استيراد " + names.length + " اسماً بنجاح.");
         };
         reader.readAsArrayBuffer(e.target.files[0]);
     };
 
+    // تطبيق ألوان الثيم
+    function applyTheme() {
+        const theme = document.getElementById('colorTheme').value;
+        const root = document.documentElement;
+        
+        if (theme === 'green') {
+            root.style.setProperty('--bg-striped', '#e9f5e9');
+            root.style.setProperty('--header-bg', '#ffffff');
+        } else if (theme === 'blue') {
+            root.style.setProperty('--bg-striped', '#e3f2fd');
+            root.style.setProperty('--header-bg', '#ffffff');
+        } else if (theme === 'gray') {
+            root.style.setProperty('--bg-striped', '#f0f0f0');
+            root.style.setProperty('--header-bg', '#ffffff');
+        } else if (theme === 'amber') {
+            root.style.setProperty('--bg-striped', '#fff8e1');
+            root.style.setProperty('--header-bg', '#ffffff');
+        } else if (theme === 'teal') {
+            root.style.setProperty('--bg-striped', '#e0f2f1');
+            root.style.setProperty('--header-bg', '#ffffff');
+        }
+    }
+
     function generateKashf() {
         const manual = document.getElementById('manualNames').value;
         if(manual.trim()) names = manual.split('\n').filter(n => n.trim());
-        if(names.length === 0) return alert("يرجى إدخال الأسماء");
+        if(names.length === 0) return alert("يرجى إدخال أسماء الطلاب أو استيراد ملف إكسل");
 
         document.getElementById('headerSchool').innerText = document.getElementById('schoolName').value;
         document.getElementById('headerTeacher').innerText = document.getElementById('teacherName').value;
         document.getElementById('headerSubject').innerText = document.getElementById('subjectInput').value;
         document.getElementById('displayClass').innerText = document.getElementById('className').value;
+        
+        const weekVal = document.getElementById('weekInput').value;
+        document.getElementById('headerWeek').innerText = formatNumber(weekVal) || '...........';
 
         renderTable();
         document.getElementById('printableArea').style.display = 'block';
@@ -242,16 +467,30 @@
 
     function renderTable() {
         const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = names.map((name, i) => `
-            <tr class="student-row">
-                <td>${i+1}</td>
-                <td class="name-col">
-                    <button class="del-btn" onclick="deleteName(${i})">X</button>
-                    <span contenteditable="true" onblur="updateName(${i}, this.innerText)">${name}</span>
-                </td>
-                ${'<td></td>'.repeat(25)}
-            </tr>
-        `).join('');
+        if (!names.length) return;
+
+        const weekVal = document.getElementById('weekInput').value;
+        if (weekVal) document.getElementById('headerWeek').innerText = formatNumber(weekVal);
+        document.querySelectorAll('.yr-digit').forEach(el => {
+            el.innerText = formatNumber('1447');
+        });
+
+        tbody.innerHTML = names.map((name, i) => {
+            let cells = '';
+            for(let day = 0; day < 5; day++) {
+                cells += `<td></td><td></td><td></td><td></td><td class="day-separator-left"></td>`;
+            }
+            return `
+                <tr class="student-row">
+                    <td>${formatNumber(i + 1)}</td>
+                    <td class="name-col day-separator-left">
+                        <button class="del-btn" onclick="deleteName(${i})" title="حذف الطالب">X</button>
+                        <span contenteditable="true" onblur="updateName(${i}, this.innerText)">${name}</span>
+                    </td>
+                    ${cells}
+                </tr>
+            `;
+        }).join('');
     }
 
     function deleteName(index) {
@@ -263,6 +502,108 @@
 
     function updateName(index, newName) {
         names[index] = newName.trim();
+    }
+
+    // تصدير الكشف إلى ملف Excel (.xlsx)
+    function exportToExcel() {
+        if (names.length === 0) return alert("يرجى إنشاء الكشف أولاً قبل التصدير");
+
+        const school = document.getElementById('schoolName').value;
+        const teacher = document.getElementById('teacherName').value;
+        const subject = document.getElementById('subjectInput').value;
+        const className = document.getElementById('className').value;
+        const week = document.getElementById('weekInput').value;
+
+        const days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس'];
+        const subHeaders = ['غياب', 'كتاب', 'مشاركة', 'سلوك', 'ملاحظة'];
+
+        let data = [];
+        data.push(['وزارة التعليم', school, '', '', '', 'كشف متابعة مادة: ' + subject, '', '', '', '', '', '', '', '', '', 'المعلم: ' + teacher, '', '', 'الأسبوع: ' + formatNumber(week)]);
+        data.push([]); 
+
+        let dayRow = ['م', 'الفصل: ' + className + ' - الاسم'];
+        days.forEach(d => { dayRow.push(d, '', '', '', ''); });
+        data.push(dayRow);
+
+        let subRow = ['', ''];
+        days.forEach(() => { subHeaders.forEach(sh => subRow.push(sh)); });
+        data.push(subRow);
+
+        names.forEach((name, idx) => {
+            let studentRow = [formatNumber(idx + 1), name];
+            for (let i = 0; i < 25; i++) studentRow.push('');
+            data.push(studentRow);
+        });
+
+        const ws = XLSX.utils.aoa_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "كشف المتابعة");
+        XLSX.writeFile(wb, `كشف_متابعة_${className || 'الفصل'}.xlsx`);
+    }
+
+    // تصدير الكشف إلى PDF
+    function exportToPDF() {
+        if (names.length === 0) return alert("يرجى إنشاء الكشف أولاً قبل التصدير");
+
+        const element = document.getElementById('printableArea');
+        const delBtns = element.querySelectorAll('.del-btn');
+        delBtns.forEach(b => b.style.display = 'none');
+
+        const className = document.getElementById('className').value || 'الفصل';
+        const opt = {
+            margin:       [12, 6, 6, 6],
+            filename:     `كشف_متابعة_${className}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        };
+
+        html2pdf().set(opt).from(element).save().then(() => {
+            delBtns.forEach(b => b.style.display = 'inline-block');
+        });
+    }
+
+    // تصدير الكشف إلى ملف Word (.doc)
+    function exportToWord() {
+        if (names.length === 0) return alert("يرجى إنشاء الكشف أولاً قبل التصدير");
+
+        const printableArea = document.getElementById('printableArea').cloneNode(true);
+        printableArea.querySelectorAll('.del-btn').forEach(btn => btn.remove());
+
+        const className = document.getElementById('className').value || 'الفصل';
+
+        const htmlContent = `
+            <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+            <head>
+                <meta charset='utf-8'>
+                <title>كشف المتابعة</title>
+                <style>
+                    @page Section1 { size: 841.9pt 595.3pt; mso-page-orientation: landscape; margin: 1.27cm; }
+                    div.Section1 { page: Section1; }
+                    body { font-family: 'Arial', sans-serif; direction: rtl; }
+                    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+                    th, td { border: 1px solid #000; text-align: center; font-size: 10pt; padding: 4px 2px; }
+                    .day-separator-left { border-left: 3px solid #000 !important; }
+                    .report-header { display: flex; justify-content: space-between; margin-bottom: 12px; font-weight: bold; font-size: 11pt; }
+                    .student-row:nth-child(even) { background-color: #f4f9f4; }
+                </style>
+            </head>
+            <body>
+                <div class="Section1">
+                    ${printableArea.innerHTML}
+                </div>
+            </body>
+            </html>
+        `;
+
+        const blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `كشف_متابعة_${className}.doc`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
     }
 </script>
 
