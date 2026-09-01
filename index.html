@@ -152,7 +152,7 @@
             background: white;
             width: 287mm; 
             margin: auto;
-            padding: 12px 10px 8px 10px;
+            padding: 10px 10px 5px 10px;
             box-shadow: 0 0 15px rgba(0,0,0,0.1);
             display: none; 
             box-sizing: border-box;
@@ -170,19 +170,18 @@
 
         .class-page {
             background: white;
-            padding: 12px 10px 8px 10px;
+            padding: 10px 10px 5px 10px;
             margin-bottom: 25px;
             border-radius: 4px;
             box-shadow: 0 0 15px rgba(0,0,0,0.1);
             box-sizing: border-box;
         }
 
-        /* الجدول الخاص بالترويسة لضمان توافقه مع Word والطباعة */
         .header-table {
             width: 100%;
             border-collapse: collapse;
             border: none !important;
-            margin-bottom: 12px;
+            margin-bottom: 8px; /* تقليل المسافة لضمان احتواء 30 طالب */
             table-layout: fixed;
         }
         .header-table td {
@@ -202,18 +201,18 @@
             border: 1px solid var(--border-color); 
             text-align: center; 
             font-size: 11px; 
-            padding: 4px 2px;
-            height: 22px;
+            padding: 3px 2px; /* تقليل الحشو */
+            height: 20px; /* تقليل الارتفاع ليتسع لـ 30 طالب */
             box-sizing: border-box; 
         }
 
         .day-separator-left { border-left: 3px solid var(--thick-border-color) !important; }
         
         .header-top th { font-weight: bold; background: var(--header-bg); }
-        .sub-header th { background: var(--header-bg); font-size: 10px; padding: 5px 1px; }
-        .class-name-cell { font-size: 12px; line-height: 1.4; }
+        .sub-header th { background: var(--header-bg); font-size: 10px; padding: 4px 1px; }
+        .class-name-cell { font-size: 12px; line-height: 1.3; }
         
-        .day-header { font-size: 11px; background-color: var(--header-bg); white-space: nowrap; padding: 8px 2px; letter-spacing: 0.5px; }
+        .day-header { font-size: 11px; background-color: var(--header-bg); white-space: nowrap; padding: 6px 2px; letter-spacing: 0.5px; }
 
         .student-row:nth-child(even) { background-color: var(--bg-striped); }
         .name-col { width: 200px; text-align: right; padding-right: 6px; white-space: nowrap; position: relative; }
@@ -226,7 +225,7 @@
 
         /* تعديلات الطباعة */
         @media print {
-            @page { size: A4 landscape; margin: 10mm 5mm 10mm 5mm; }
+            @page { size: A4 landscape; margin: 5mm; }
             body { background: white; padding: 0; margin: 0; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             .app-header, .controls, .save-manager, .del-btn, .instructions { display: none !important; }
             .page-container, .all-mode-container { width: 100% !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
@@ -260,7 +259,6 @@
 
 <div class="controls">
     
-    <!-- قسم التعليمات -->
     <div class="instructions">
         <h4>💡 تعليمات استخدام الأداة:</h4>
         <ul>
@@ -268,7 +266,7 @@
             <li>لإضافة الطلاب: اختر ملف <b>إكسل</b> (الأسماء في العمود الأول) أو قم بـ <b>لصق الأسماء</b> في المربع السفلي.</li>
             <li>لإضافة فصول متعددة: قم بإدخال بيانات الفصل ثم اضغط على زر <b>(💾 حفظ)</b>، ثم اضغط <b>(➕ فصل جديد)</b> لإدخال الفصل التالي وهكذا.</li>
             <li>يمكنك استعراض وطباعة جميع الفصول المحفوظة دفعة واحدة بالضغط على <b>(📂 استعراض الكل)</b>.</li>
-            <li><b>ملاحظة للطباعة:</b> تأكد من اختيار التخطيط (Landscape/عرضي) في نافذة الطباعة للحصول على أفضل نتيجة.</li>
+            <li><b>ملاحظة للطباعة:</b> للحصول على أفضل نتيجة، تأكد من اختيار التخطيط (Landscape / عرضي) من إعدادات الطباعة في المتصفح.</li>
         </ul>
     </div>
 
@@ -806,18 +804,25 @@
         const delBtns = element.querySelectorAll('.del-btn');
         delBtns.forEach(b => b.style.display = 'none');
 
+        // الحيلة السحرية لحل مشكلة اتجاه اليمين لليسار مع html2canvas
+        const originalDocDir = document.documentElement.dir;
+        document.documentElement.dir = 'ltr';
+        element.style.direction = 'rtl';
+
         const fileName = isAllMode ? `جميع_الكشوفات.pdf` : `كشف_متابعة_${document.getElementById('className').value || 'الفصل'}.pdf`;
         
         const opt = {
             margin: [5, 5, 5, 5],
             filename: fileName,
             image: { type: 'jpeg', quality: 1 },
-            html2canvas: { scale: 2, useCORS: true, windowWidth: 1122 },
+            html2canvas: { scale: 2, useCORS: true },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
-            pagebreak: { mode: ['css'], after: '.class-page' }
+            pagebreak: { mode: ['css', 'legacy'] }
         };
 
         html2pdf().set(opt).from(element).save().then(() => {
+            document.documentElement.dir = originalDocDir;
+            element.style.direction = '';
             delBtns.forEach(b => b.style.display = 'inline-block');
             element.classList.remove('pdf-export-mode');
         });
@@ -853,12 +858,12 @@
                 <meta charset='utf-8'>
                 <title>كشف المتابعة</title>
                 <style>
-                    @page WordSection1 { size: 841.9pt 595.3pt; mso-page-orientation: landscape; margin: 1.0cm; }
+                    @page WordSection1 { size: 841.9pt 595.3pt; mso-page-orientation: landscape; margin: 0.5cm; }
                     div.WordSection1 { page: WordSection1; }
                     body { font-family: 'Arial', sans-serif; direction: rtl; }
                     table.data-table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 5px;}
-                    table.data-table th, table.data-table td { border: 1px solid #000; text-align: center; font-size: 10pt; padding: 4px; }
-                    table.header-table { width: 100%; border: none; margin-bottom: 12px; table-layout: fixed; }
+                    table.data-table th, table.data-table td { border: 1px solid #000; text-align: center; font-size: 9.5pt; padding: 2px; height: 18px; }
+                    table.header-table { width: 100%; border: none; margin-bottom: 10px; table-layout: fixed; }
                     table.header-table td { border: none; padding: 0; vertical-align: middle; }
                     .day-separator-left { border-left: 3px solid #000 !important; }
                     .student-row:nth-child(even) { background-color: #f4f9f4; }
