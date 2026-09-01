@@ -224,46 +224,30 @@
         .m-col { width: 28px; }
         .col-small { width: 31px; }
 
-        /* تعديلات الطباعة القوية لضمان عدم التداخل والقطع */
+        /* تعديلات الطباعة */
         @media print {
             @page { size: A4 landscape; margin: 10mm 5mm 10mm 5mm; }
-            
-            body { 
-                background: white; 
-                padding: 0; 
-                margin: 0; 
-                -webkit-print-color-adjust: exact !important; 
-                print-color-adjust: exact !important;
-            }
-            
+            body { background: white; padding: 0; margin: 0; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             .app-header, .controls, .save-manager, .del-btn, .instructions { display: none !important; }
-            
-            .page-container, .all-mode-container { 
-                width: 100% !important; 
-                box-shadow: none !important; 
-                padding: 0 !important; 
-                margin: 0 !important; 
-            }
-            
-            .class-page {
-                box-shadow: none !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                page-break-after: always !important; 
-                break-after: page !important;
-                page-break-inside: auto !important;
-            }
-            
-            .class-page:last-child {
-                 page-break-after: auto !important;
-                 break-after: auto !important;
-            }
-
+            .page-container, .all-mode-container { width: 100% !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
+            .class-page { box-shadow: none !important; margin: 0 !important; padding: 0 !important; page-break-after: always !important; break-after: page !important; page-break-inside: avoid !important; }
+            .class-page:last-child { page-break-after: auto !important; break-after: auto !important; }
             table.data-table { page-break-inside: auto; }
             table.data-table tr { page-break-inside: avoid; break-inside: avoid; page-break-after: auto; }
-            /* منع تكرار الهيدر وتداخله في كروم */
             table.data-table thead { display: table-row-group; }
         }
+
+        /* كلاس مخصص لحفظ الـ PDF يضمن استقلالية الصفحات والعرض الكامل 100% */
+        .pdf-export-mode { width: 100% !important; margin: 0 !important; padding: 0 !important; }
+        .pdf-export-mode .class-page {
+             width: 100% !important;
+             box-shadow: none !important;
+             margin: 0 !important;
+             padding: 0 !important;
+             page-break-after: always;
+             page-break-inside: avoid;
+        }
+        .pdf-export-mode .class-page:last-child { page-break-after: auto; }
 
     </style>
 </head>
@@ -276,7 +260,7 @@
 
 <div class="controls">
     
-    <!-- قسم التعليمات (تم إرجاعه كما طلب المستخدم) -->
+    <!-- قسم التعليمات -->
     <div class="instructions">
         <h4>💡 تعليمات استخدام الأداة:</h4>
         <ul>
@@ -299,7 +283,6 @@
         <button onclick="clearAllData()" style="background:#c62828;">🗑️ مسح الكل</button>
     </div>
 
-    <!-- إعدادات إظهار/إخفاء عناصر الرأس -->
     <div class="toggle-group">
         <label class="toggle-item"><input type="checkbox" id="showMinistry" checked onchange="toggleHeaderElements()"> وزارة التعليم</label>
         <label class="toggle-item"><input type="checkbox" id="showSchool" checked onchange="toggleHeaderElements()"> المدرسة</label>
@@ -373,46 +356,47 @@
 </div>
 
 <div class="page-container" id="printableArea">
-    <!-- استخدام Table للترويسة لضمان توافقها 100% مع Word والطباعة -->
-    <table class="header-table" id="headerTableSingle">
-        <tr>
-            <td id="rightHeaderTd" style="width:33%; text-align:right; font-weight:bold;">
-                <span id="textMinistry">وزارة التعليم</span><br id="brMinistry">
-                <span id="headerSchool"></span>
-            </td>
-            <td id="centerHeaderTd" style="width:34%; text-align:center; font-weight:bold; font-size:16px;">
-                <span id="reportTitleContainer">كشف متابعة مادة <span id="headerSubject"></span></span>
-            </td>
-            <td id="leftHeaderTd" style="width:33%; text-align:left; font-weight:bold;">
-                <span id="textTeacher">المعلم: <span id="headerTeacher"></span></span><br id="brTeacher">
-                <span id="textWeek">الأسبوع: <span id="headerWeek">...........</span></span>
-            </td>
-        </tr>
-    </table>
+    <div class="class-page">
+        <table class="header-table" id="headerTableSingle">
+            <tr>
+                <td id="rightHeaderTd" style="width:33%; text-align:right; font-weight:bold;">
+                    <span id="textMinistry">وزارة التعليم</span><br id="brMinistry">
+                    <span id="headerSchool"></span>
+                </td>
+                <td id="centerHeaderTd" style="width:34%; text-align:center; font-weight:bold; font-size:16px;">
+                    <span id="reportTitleContainer">كشف متابعة مادة <span id="headerSubject"></span></span>
+                </td>
+                <td id="leftHeaderTd" style="width:33%; text-align:left; font-weight:bold;">
+                    <span id="textTeacher">المعلم: <span id="headerTeacher"></span></span><br id="brTeacher">
+                    <span id="textWeek">الأسبوع: <span id="headerWeek">...........</span></span>
+                </td>
+            </tr>
+        </table>
 
-    <table class="data-table">
-        <thead>
-            <tr class="header-top">
-                <th rowspan="2" class="m-col">م</th>
-                <th rowspan="2" class="name-col class-name-cell day-separator-left">
-                    الفصـل: <span id="displayClass"></span><br>الاســــــــــــــــــــــــــــــــم
-                </th>
-                <th colspan="5" class="day-header day-separator-left">الأحد &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span class="yr-digit">1448</span>هـ</th>
-                <th colspan="5" class="day-header day-separator-left">الاثنين &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span class="yr-digit">1448</span>هـ</th>
-                <th colspan="5" class="day-header day-separator-left">الثلاثاء &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span class="yr-digit">1448</span>هـ</th>
-                <th colspan="5" class="day-header day-separator-left">الأربعاء &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span class="yr-digit">1448</span>هـ</th>
-                <th colspan="5" class="day-header day-separator-left">الخميس &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span class="yr-digit">1448</span>هـ</th>
-            </tr>
-            <tr class="sub-header">
-                <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small day-separator-left">ملاحظة</th>
-                <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small day-separator-left">ملاحظة</th>
-                <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small day-separator-left">ملاحظة</th>
-                <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small day-separator-left">ملاحظة</th>
-                <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small day-separator-left">ملاحظة</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-    </table>
+        <table class="data-table">
+            <thead>
+                <tr class="header-top">
+                    <th rowspan="2" class="m-col">م</th>
+                    <th rowspan="2" class="name-col class-name-cell day-separator-left">
+                        الفصـل: <span id="displayClass"></span><br>الاســــــــــــــــــــــــــــــــم
+                    </th>
+                    <th colspan="5" class="day-header day-separator-left">الأحد &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span class="yr-digit">1448</span>هـ</th>
+                    <th colspan="5" class="day-header day-separator-left">الاثنين &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span class="yr-digit">1448</span>هـ</th>
+                    <th colspan="5" class="day-header day-separator-left">الثلاثاء &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span class="yr-digit">1448</span>هـ</th>
+                    <th colspan="5" class="day-header day-separator-left">الأربعاء &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span class="yr-digit">1448</span>هـ</th>
+                    <th colspan="5" class="day-header day-separator-left">الخميس &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span class="yr-digit">1448</span>هـ</th>
+                </tr>
+                <tr class="sub-header">
+                    <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small day-separator-left">ملاحظة</th>
+                    <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small day-separator-left">ملاحظة</th>
+                    <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small day-separator-left">ملاحظة</th>
+                    <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small day-separator-left">ملاحظة</th>
+                    <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small day-separator-left">ملاحظة</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
 </div>
 
 <div class="all-mode-container" id="allClassesArea"></div>
@@ -816,6 +800,8 @@
         
         const areaId = isAllMode ? 'allClassesArea' : 'printableArea';
         const element = document.getElementById(areaId);
+        
+        element.classList.add('pdf-export-mode');
 
         const delBtns = element.querySelectorAll('.del-btn');
         delBtns.forEach(b => b.style.display = 'none');
@@ -823,16 +809,17 @@
         const fileName = isAllMode ? `جميع_الكشوفات.pdf` : `كشف_متابعة_${document.getElementById('className').value || 'الفصل'}.pdf`;
         
         const opt = {
-            margin: [10, 5, 10, 5],
+            margin: [5, 5, 5, 5],
             filename: fileName,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true },
+            image: { type: 'jpeg', quality: 1 },
+            html2canvas: { scale: 2, useCORS: true, windowWidth: 1122 },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
-            pagebreak: { mode: ['css', 'legacy'], avoid: 'tr' }
+            pagebreak: { mode: ['css'], after: '.class-page' }
         };
 
         html2pdf().set(opt).from(element).save().then(() => {
             delBtns.forEach(b => b.style.display = 'inline-block');
+            element.classList.remove('pdf-export-mode');
         });
     }
 
@@ -844,13 +831,18 @@
         const printableArea = document.getElementById(areaId).cloneNode(true);
         printableArea.querySelectorAll('.del-btn').forEach(btn => btn.remove());
         
-        // حل مشكلة تداخل الفصول في Word بإضافة Page Break حقيقي بينها
+        let contentHtml = '';
         const pages = printableArea.querySelectorAll('.class-page');
-        for (let i = 1; i < pages.length; i++) {
-            const pageBreak = document.createElement('br');
-            pageBreak.setAttribute('clear', 'all');
-            pageBreak.setAttribute('style', 'page-break-before: always;');
-            pages[i].parentNode.insertBefore(pageBreak, pages[i]);
+        
+        if (isAllMode && pages.length > 0) {
+            pages.forEach((page, index) => {
+                contentHtml += page.outerHTML;
+                if (index < pages.length - 1) {
+                    contentHtml += '<br clear="all" style="mso-special-character:line-break; page-break-before:always">';
+                }
+            });
+        } else {
+            contentHtml = printableArea.innerHTML;
         }
         
         const fileName = isAllMode ? `جميع_الكشوفات.doc` : `كشف_متابعة_${document.getElementById('className').value || 'الفصل'}.doc`;
@@ -861,11 +853,11 @@
                 <meta charset='utf-8'>
                 <title>كشف المتابعة</title>
                 <style>
-                    @page Section1 { size: 841.9pt 595.3pt; mso-page-orientation: landscape; margin: 1.27cm; }
-                    div.Section1 { page: Section1; }
+                    @page WordSection1 { size: 841.9pt 595.3pt; mso-page-orientation: landscape; margin: 1.0cm; }
+                    div.WordSection1 { page: WordSection1; }
                     body { font-family: 'Arial', sans-serif; direction: rtl; }
                     table.data-table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 5px;}
-                    table.data-table th, table.data-table td { border: 1px solid #000; text-align: center; font-size: 10pt; padding: 5px 2px; height: 22px;}
+                    table.data-table th, table.data-table td { border: 1px solid #000; text-align: center; font-size: 10pt; padding: 4px; }
                     table.header-table { width: 100%; border: none; margin-bottom: 12px; table-layout: fixed; }
                     table.header-table td { border: none; padding: 0; vertical-align: middle; }
                     .day-separator-left { border-left: 3px solid #000 !important; }
@@ -873,8 +865,8 @@
                 </style>
             </head>
             <body>
-                <div class="Section1">
-                    ${printableArea.innerHTML}
+                <div class="WordSection1">
+                    ${contentHtml}
                 </div>
             </body>
             </html>
