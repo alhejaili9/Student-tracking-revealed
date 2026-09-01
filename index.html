@@ -217,8 +217,17 @@
         .col-small { width: 31px; }
 
         @media print {
-            @page { size: A4 landscape; margin: 10mm 6mm 6mm 6mm; }
-            body { background: white; padding: 0; margin: 0; }
+            /* تعديل الهوامش والاتجاه للطباعة من المتصفح */
+            @page { size: A4 landscape; margin: 10mm; }
+            
+            body { 
+                background: white; 
+                padding: 0; 
+                margin: 0; 
+                -webkit-print-color-adjust: exact !important; 
+                print-color-adjust: exact !important;
+            }
+            
             .app-header, .controls, .save-manager, .del-btn, .instructions { display: none !important; }
             
             .page-container, .all-mode-container { 
@@ -232,18 +241,31 @@
                 box-shadow: none !important;
                 margin: 0 !important;
                 padding: 0 !important;
-                page-break-inside: auto; 
+                page-break-after: always !important; /* إجبار كسر الصفحة بعد كل فصل */
+                break-after: page !important;
             }
             
-            .class-page + .class-page {
-                page-break-before: always !important;
-                break-before: page !important;
-                margin-top: 15px !important; 
+            /* إزالة الـ margin-bottom للكشف الأخير حتى لا ينشئ صفحة فارغة */
+            .class-page:last-child {
+                 page-break-after: auto !important;
+                 break-after: auto !important;
             }
 
             table { page-break-inside: auto; }
             tr { page-break-inside: avoid; break-inside: avoid; page-break-after: auto; }
         }
+        
+        /* كلاس مخصص لحفظ الـ PDF يضمن أن كل كشف في ورقة مستقلة دون تداخل */
+        .pdf-export-mode .class-page {
+             page-break-after: always;
+             margin-bottom: 0 !important;
+             box-shadow: none;
+             padding: 10px;
+        }
+        .pdf-export-mode .class-page:last-child {
+             page-break-after: auto;
+        }
+
     </style>
 </head>
 <body>
@@ -793,22 +815,28 @@
         const areaId = isAllMode ? 'allClassesArea' : 'printableArea';
         const element = document.getElementById(areaId);
         
+        // إضافة الكلاس اللي يفصل الصفحات عند التصدير لـ PDF
+        element.classList.add('pdf-export-mode');
+
         const delBtns = element.querySelectorAll('.del-btn');
         delBtns.forEach(b => b.style.display = 'none');
 
         const fileName = isAllMode ? `جميع_الكشوفات.pdf` : `كشف_متابعة_${document.getElementById('className').value || 'الفصل'}.pdf`;
         
         const opt = {
-            margin: [10, 6, 6, 6],
+            margin: [10, 5, 10, 5],
             filename: fileName,
             image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+            // إضافة خاصية pagebreak للفصل الصحيح في الـ PDF
             pagebreak: { mode: ['css', 'legacy'] }
         };
 
         html2pdf().set(opt).from(element).save().then(() => {
             delBtns.forEach(b => b.style.display = 'inline-block');
+            // إزالة الكلاس بعد الانتهاء
+            element.classList.remove('pdf-export-mode');
         });
     }
 
