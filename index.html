@@ -215,21 +215,44 @@
         .m-col { width: 28px; }
         .col-small { width: 31px; }
 
+        /* تعديلات الطباعة القوية لضمان عدم تداخل الفصول */
         @media print {
             @page { size: A4 landscape; margin: 10mm 6mm 6mm 6mm; }
             body { background: white; padding: 0; margin: 0; }
             .app-header, .controls, .save-manager, .del-btn, .instructions { display: none !important; }
             
-            .page-container { display: block !important; width: 100% !important; box-shadow: none !important; padding: 0 !important; margin-top: 5px !important; }
-            .all-mode-container { width: 100% !important; margin: 0 !important; padding: 0 !important;}
+            .page-container { 
+                display: block !important; 
+                width: 100% !important; 
+                box-shadow: none !important; 
+                padding: 0 !important; 
+                margin-top: 0 !important; 
+            }
+            .all-mode-container { 
+                display: block !important; 
+                width: 100% !important; 
+                margin: 0 !important; 
+                padding: 0 !important;
+            }
             
+            /* الحفاظ على الكشف كوحدة واحدة وكسر الصفحة قبله إذا كان هناك كشف آخر */
             .class-page {
                 box-shadow: none !important;
                 margin: 0 !important;
                 padding: 0 !important;
-                page-break-after: always; /* كسر الصفحة عند الطباعة */
+                page-break-inside: auto; /* يسمح بكسر الصفحة لو كان الفصل طويل (أكثر من 30 طالب) */
             }
-            .class-page:last-child { page-break-after: auto; }
+            
+            /* أي كشف يليه كشف آخر، يجب أن يبدأ في صفحة جديدة تماماً لمنع التداخل */
+            .class-page + .class-page {
+                page-break-before: always !important;
+                break-before: page !important;
+                margin-top: 15px !important; /* مسافة بسيطة من أعلى الورقة الجديدة */
+            }
+
+            /* منع قص الصف (الطالب) من المنتصف */
+            table { page-break-inside: auto; }
+            tr { page-break-inside: avoid; break-inside: avoid; page-break-after: auto; }
         }
     </style>
 </head>
