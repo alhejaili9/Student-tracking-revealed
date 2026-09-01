@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>أداة الشاعري - منشئ كشوف المتابعة المطوّر</title>
+    <!-- المكتبات الخارجية -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
@@ -23,7 +24,6 @@
             color: #333;
         }
 
-        /* رأس التطبيق الإداري - يظهر اسم أداة الشاعري هنا فقط */
         .app-header {
             max-width: 1050px;
             margin: 0 auto 15px auto;
@@ -37,23 +37,17 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.12);
         }
 
-        .app-header h2 {
-            margin: 0;
-            font-size: 20px;
-            font-weight: bold;
-        }
-
+        .app-header h2 { margin: 0; font-size: 20px; font-weight: bold; }
+        
         .app-header .tool-badge {
             background: rgba(255, 255, 255, 0.22);
             padding: 5px 14px;
             border-radius: 20px;
             font-size: 14px;
             font-weight: bold;
-            letter-spacing: 0.5px;
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
-        /* أدوات التحكم */
         .controls {
             background: #fff;
             padding: 20px;
@@ -64,7 +58,6 @@
             box-sizing: border-box;
         }
 
-        /* قسم التعليمات */
         .instructions {
             background-color: #e3f2fd;
             border-right: 5px solid #2196f3;
@@ -80,22 +73,14 @@
 
         .input-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 12px;
             margin-bottom: 15px;
         }
 
-        .input-field {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .input-field label {
-            font-size: 12px;
-            font-weight: bold;
-            color: #444;
-        }
+        .input-field { display: flex; flex-direction: column; gap: 5px; }
+        
+        .input-field label { font-size: 12px; font-weight: bold; color: #444; }
 
         input[type="text"], input[type="number"], select, textarea {
             padding: 9px 12px;
@@ -104,29 +89,42 @@
             font-family: inherit;
             font-size: 13px;
             box-sizing: border-box;
-            transition: border-color 0.2s;
         }
 
-        input:focus, select:focus, textarea:focus {
-            border-color: #2e7d32;
-            outline: none;
-        }
+        input:focus, select:focus, textarea:focus { border-color: #2e7d32; outline: none; }
+        input[type="file"] { padding: 7px; border: 1px dashed #bbb; border-radius: 6px; background: #fafafa; cursor: pointer; }
 
-        input[type="file"] {
-            padding: 7px;
-            border: 1px dashed #bbb;
+        /* ستايل خيارات الإخفاء/الإظهار (Toggles) */
+        .toggle-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            background: #fcfcfc;
+            padding: 10px;
+            border: 1px solid #eee;
             border-radius: 6px;
-            background: #fafafa;
+            margin-bottom: 15px;
+        }
+        
+        .toggle-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #555;
             cursor: pointer;
         }
 
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 15px;
+        .toggle-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: #2e7d32;
         }
 
+        .action-buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+        
         button {
             padding: 10px 18px;
             color: white;
@@ -135,18 +133,13 @@
             border-radius: 6px;
             font-weight: bold;
             font-size: 13px;
-            transition: all 0.2s ease;
+            transition: all 0.2s;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-
-        button:hover {
-            opacity: 0.92;
-            transform: translateY(-1px);
-        }
+        button:hover { opacity: 0.92; transform: translateY(-1px); }
 
         .btn-generate { background-color: #2e7d32; flex: 2; min-width: 140px; }
         .btn-print { background-color: #0277bd; flex: 1; min-width: 100px; }
@@ -154,7 +147,6 @@
         .btn-pdf { background-color: #c2410c; flex: 1; min-width: 110px; }
         .btn-word { background-color: #1d4ed8; flex: 1; min-width: 110px; }
 
-        /* منطقة ورق الكشف */
         .page-container {
             background: white;
             width: 287mm; 
@@ -176,108 +168,39 @@
             padding: 0 5px;
         }
 
-        .report-header div {
-            line-height: 1.4;
-        }
+        .report-header div { line-height: 1.4; }
+        
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; background-color: #fff; }
+        th, td { border: 1px solid var(--border-color); text-align: center; font-size: 11px; padding: 3px 2px; height: 20px; box-sizing: border-box; }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-            background-color: #fff;
-        }
-
-        th, td {
-            border: 1px solid var(--border-color);
-            text-align: center;
-            font-size: 11px;
-            padding: 3px 2px;
-            height: 20px; 
-            overflow: hidden;
-            box-sizing: border-box;
-        }
-
-        /* خط عريض مميز ليفصل كل يوم بعد عمود الملاحظة */
-        .day-separator-left {
-            border-left: 3px solid var(--thick-border-color) !important;
-        }
-
-        .header-top th {
-            font-weight: bold;
-            background: var(--header-bg);
-        }
-
-        .sub-header th {
-            background: var(--header-bg);
-            font-size: 10px;
-            padding: 4px 1px;
-        }
-
-        .class-name-cell {
-            font-size: 12px;
-            line-height: 1.3;
-        }
-
+        .day-separator-left { border-left: 3px solid var(--thick-border-color) !important; }
+        
+        .header-top th { font-weight: bold; background: var(--header-bg); }
+        .sub-header th { background: var(--header-bg); font-size: 10px; padding: 4px 1px; }
+        .class-name-cell { font-size: 12px; line-height: 1.3; }
+        
         .day-header {
             font-size: 11px;
             background-color: var(--header-bg);
             white-space: nowrap;
-            padding: 7px 2px; /* زياده الفراغ بعد/حول اليوم */
+            padding: 7px 2px;
             letter-spacing: 0.5px;
         }
 
-        .student-row:nth-child(even) {
-            background-color: var(--bg-striped);
-        }
-
-        .name-col {
-            width: 200px;
-            text-align: right;
-            padding-right: 6px;
-            white-space: nowrap;
-            position: relative;
-        }
-
-        .del-btn {
-            color: #d32f2f;
-            cursor: pointer;
-            font-weight: bold;
-            margin-left: 5px;
-            font-size: 13px;
-            display: inline-block;
-            border: none;
-            background: none;
-            padding: 0 3px;
-        }
-
-        .del-btn:hover {
-            color: #9a0007;
-        }
+        .student-row:nth-child(even) { background-color: var(--bg-striped); }
+        .name-col { width: 200px; text-align: right; padding-right: 6px; white-space: nowrap; position: relative; }
+        
+        .del-btn { color: #d32f2f; cursor: pointer; font-weight: bold; margin-left: 5px; font-size: 13px; border: none; background: none; padding: 0 3px; }
+        .del-btn:hover { color: #9a0007; }
 
         .m-col { width: 28px; }
         .col-small { width: 31px; }
 
-        /* الطباعة */
         @media print {
-            @page {
-                size: A4 landscape;
-                margin: 15mm 6mm 6mm 6mm; /* تم تنزيل الكشف للأسفل لمنع الالتصاق بأعلى الورقة */
-            }
-            body {
-                background: white;
-                padding: 0;
-                margin: 0;
-            }
-            .app-header, .controls, .del-btn, .instructions {
-                display: none !important;
-            }
-            .page-container {
-                display: block !important;
-                width: 100% !important;
-                box-shadow: none !important;
-                padding: 0 !important;
-                margin-top: 15px !important; /* مسافة إضافية في الطباعة */
-            }
+            @page { size: A4 landscape; margin: 15mm 6mm 6mm 6mm; }
+            body { background: white; padding: 0; margin: 0; }
+            .app-header, .controls, .del-btn, .instructions { display: none !important; }
+            .page-container { display: block !important; width: 100% !important; box-shadow: none !important; padding: 0 !important; margin-top: 15px !important; }
         }
     </style>
 </head>
@@ -289,17 +212,20 @@
 </div>
 
 <div class="controls">
-    <div class="instructions">
-        <h4>💡 تعليمات الاستخدام:</h4>
-        <ul>
-            <li>قم بتعبئة بيانات <b>المدرسة، المعلم، المادة، الفصل، والأسبوع</b>.</li>
-            <li>اختر <b>ثيم الألوان</b> ونوع <b>الأرقام (عربية / إنجليزية)</b> حسب رغبتك.</li>
-            <li>لإضافة الطلاب: اختر ملف <b>إكسل</b> (الأسماء في العمود الأول) أو قم بـ <b>لصق الأسماء</b> في المربع السفلي.</li>
-            <li>اضغط على <b>"إنشاء الكشف"</b> لتوليد الجدول، ويمكنك التعديل أو الحذف المباشر.</li>
-            <li>يمكنك <b>الطباعة الفورية</b> أو تصدير الكشف بـ صيغ <b>Excel</b>، <b>PDF</b>، أو <b>Word</b>.</li>
-        </ul>
+    <!-- إعدادات إظهار/إخفاء عناصر الرأس -->
+    <div class="toggle-group">
+        <label class="toggle-item">
+            <input type="checkbox" id="showMinistry" checked onchange="toggleHeaderElements()"> إظهار (وزارة التعليم)
+        </label>
+        <label class="toggle-item">
+            <input type="checkbox" id="showSchool" checked onchange="toggleHeaderElements()"> إظهار المدرسة
+        </label>
+        <label class="toggle-item">
+            <input type="checkbox" id="showTeacher" checked onchange="toggleHeaderElements()"> إظهار المعلم
+        </label>
     </div>
 
+    <!-- المدخلات الأساسية -->
     <div class="input-grid">
         <div class="input-field">
             <label>اسم المدرسة:</label>
@@ -320,6 +246,10 @@
         <div class="input-field">
             <label>رقم الأسبوع:</label>
             <input type="text" id="weekInput" placeholder="مثال: الأول أو 1" value="1">
+        </div>
+        <div class="input-field">
+            <label>العام الدراسي:</label>
+            <input type="text" id="yearInput" placeholder="مثال: 1448" value="1448">
         </div>
         <div class="input-field">
             <label>نوع الأرقام:</label>
@@ -360,11 +290,22 @@
     </div>
 </div>
 
+<!-- ورقة الكشف -->
 <div class="page-container" id="printableArea">
     <div class="report-header">
-        <div>وزارة التعليم<br><span id="headerSchool"></span></div>
+        <div id="rightHeader">
+            <span id="textMinistry">وزارة التعليم</span>
+            <br id="brMinistry">
+            <span id="headerSchool"></span>
+        </div>
+        
         <div class="report-title">كشف متابعة مادة <span id="headerSubject"></span></div>
-        <div>المعلم: <span id="headerTeacher"></span><br>الأسبوع: <span id="headerWeek">...........</span></div>
+        
+        <div id="leftHeader">
+            <span id="textTeacher">المعلم: <span id="headerTeacher"></span></span>
+            <br id="brTeacher">
+            الأسبوع: <span id="headerWeek">...........</span>
+        </div>
     </div>
 
     <table>
@@ -375,11 +316,11 @@
                     الفصـل: <span id="displayClass"></span><br>
                     الاســــــــــــــــــــــــــــــــم
                 </th>
-                <th colspan="5" class="day-header day-separator-left">الأحد &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span class="yr-digit">1447</span>هـ</th>
-                <th colspan="5" class="day-header day-separator-left">الاثنين &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span class="yr-digit">1447</span>هـ</th>
-                <th colspan="5" class="day-header day-separator-left">الثلاثاء &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span class="yr-digit">1447</span>هـ</th>
-                <th colspan="5" class="day-header day-separator-left">الأربعاء &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span class="yr-digit">1447</span>هـ</th>
-                <th colspan="5" class="day-header day-separator-left">الخميس &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span class="yr-digit">1447</span>هـ</th>
+                <th colspan="5" class="day-header day-separator-left">الأحد &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span class="yr-digit">1448</span>هـ</th>
+                <th colspan="5" class="day-header day-separator-left">الاثنين &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span class="yr-digit">1448</span>هـ</th>
+                <th colspan="5" class="day-header day-separator-left">الثلاثاء &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span class="yr-digit">1448</span>هـ</th>
+                <th colspan="5" class="day-header day-separator-left">الأربعاء &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span class="yr-digit">1448</span>هـ</th>
+                <th colspan="5" class="day-header day-separator-left">الخميس &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span class="yr-digit">1448</span>هـ</th>
             </tr>
             <tr class="sub-header">
                 <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small day-separator-left">ملاحظة</th>
@@ -396,7 +337,31 @@
 <script>
     let names = [];
 
-    // تحويل الأرقام بين العربية والإنجليزية
+    // دالة إخفاء وإظهار عناصر الرأس
+    function toggleHeaderElements() {
+        const showMinistry = document.getElementById('showMinistry').checked;
+        const showSchool = document.getElementById('showSchool').checked;
+        const showTeacher = document.getElementById('showTeacher').checked;
+
+        // قسم اليمين (وزارة التعليم والمدرسة)
+        const textMinistry = document.getElementById('textMinistry');
+        const brMinistry = document.getElementById('brMinistry');
+        const headerSchool = document.getElementById('headerSchool');
+
+        textMinistry.style.display = showMinistry ? 'inline' : 'none';
+        headerSchool.style.display = showSchool ? 'inline' : 'none';
+        // إخفاء النزول لسطر جديد إذا تم إخفاء أحدهما
+        brMinistry.style.display = (showMinistry && showSchool) ? 'inline' : 'none';
+
+        // قسم اليسار (المعلم)
+        const textTeacher = document.getElementById('textTeacher');
+        const brTeacher = document.getElementById('brTeacher');
+        
+        textTeacher.style.display = showTeacher ? 'inline' : 'none';
+        brTeacher.style.display = showTeacher ? 'inline' : 'none';
+    }
+
+    // تحويل الأرقام
     function formatNumber(numStr) {
         if (!numStr && numStr !== 0) return '';
         const style = document.getElementById('numberStyle').value;
@@ -410,7 +375,6 @@
         }
     }
 
-    // قراءة ملف Excel
     document.getElementById('excelFile').onchange = function(e) {
         if(!e.target.files.length) return;
         const reader = new FileReader();
@@ -425,27 +389,17 @@
         reader.readAsArrayBuffer(e.target.files[0]);
     };
 
-    // تطبيق ألوان الثيم
     function applyTheme() {
         const theme = document.getElementById('colorTheme').value;
         const root = document.documentElement;
-        
-        if (theme === 'green') {
-            root.style.setProperty('--bg-striped', '#e9f5e9');
-            root.style.setProperty('--header-bg', '#ffffff');
-        } else if (theme === 'blue') {
-            root.style.setProperty('--bg-striped', '#e3f2fd');
-            root.style.setProperty('--header-bg', '#ffffff');
-        } else if (theme === 'gray') {
-            root.style.setProperty('--bg-striped', '#f0f0f0');
-            root.style.setProperty('--header-bg', '#ffffff');
-        } else if (theme === 'amber') {
-            root.style.setProperty('--bg-striped', '#fff8e1');
-            root.style.setProperty('--header-bg', '#ffffff');
-        } else if (theme === 'teal') {
-            root.style.setProperty('--bg-striped', '#e0f2f1');
-            root.style.setProperty('--header-bg', '#ffffff');
-        }
+        const themes = {
+            'green': {bg: '#e9f5e9'},
+            'blue': {bg: '#e3f2fd'},
+            'gray': {bg: '#f0f0f0'},
+            'amber': {bg: '#fff8e1'},
+            'teal': {bg: '#e0f2f1'}
+        };
+        root.style.setProperty('--bg-striped', themes[theme].bg);
     }
 
     function generateKashf() {
@@ -461,6 +415,7 @@
         const weekVal = document.getElementById('weekInput').value;
         document.getElementById('headerWeek').innerText = formatNumber(weekVal) || '...........';
 
+        toggleHeaderElements(); // التأكد من تطبيق حالة الإظهار/الإخفاء
         renderTable();
         document.getElementById('printableArea').style.display = 'block';
     }
@@ -469,11 +424,15 @@
         const tbody = document.getElementById('tableBody');
         if (!names.length) return;
 
+        // تحديث العام الدراسي
+        const yearVal = document.getElementById('yearInput').value || '1448';
+        document.querySelectorAll('.yr-digit').forEach(el => {
+            el.innerText = formatNumber(yearVal);
+        });
+
+        // تحديث أرقام الأسبوع
         const weekVal = document.getElementById('weekInput').value;
         if (weekVal) document.getElementById('headerWeek').innerText = formatNumber(weekVal);
-        document.querySelectorAll('.yr-digit').forEach(el => {
-            el.innerText = formatNumber('1447');
-        });
 
         tbody.innerHTML = names.map((name, i) => {
             let cells = '';
@@ -504,21 +463,23 @@
         names[index] = newName.trim();
     }
 
-    // تصدير الكشف إلى ملف Excel (.xlsx)
+    // تصدير الكشف إلى ملف Excel
     function exportToExcel() {
         if (names.length === 0) return alert("يرجى إنشاء الكشف أولاً قبل التصدير");
 
-        const school = document.getElementById('schoolName').value;
-        const teacher = document.getElementById('teacherName').value;
+        const school = document.getElementById('showSchool').checked ? document.getElementById('schoolName').value : '';
+        const ministry = document.getElementById('showMinistry').checked ? 'وزارة التعليم' : '';
+        const teacher = document.getElementById('showTeacher').checked ? 'المعلم: ' + document.getElementById('teacherName').value : '';
         const subject = document.getElementById('subjectInput').value;
         const className = document.getElementById('className').value;
         const week = document.getElementById('weekInput').value;
+        const year = document.getElementById('yearInput').value;
 
         const days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس'];
         const subHeaders = ['غياب', 'كتاب', 'مشاركة', 'سلوك', 'ملاحظة'];
 
         let data = [];
-        data.push(['وزارة التعليم', school, '', '', '', 'كشف متابعة مادة: ' + subject, '', '', '', '', '', '', '', '', '', 'المعلم: ' + teacher, '', '', 'الأسبوع: ' + formatNumber(week)]);
+        data.push([ministry, school, '', '', '', 'كشف متابعة مادة: ' + subject, '', '', '', '', '', '', '', '', '', teacher, '', '', 'الأسبوع: ' + formatNumber(week), 'العام: ' + formatNumber(year)]);
         data.push([]); 
 
         let dayRow = ['م', 'الفصل: ' + className + ' - الاسم'];
@@ -541,21 +502,20 @@
         XLSX.writeFile(wb, `كشف_متابعة_${className || 'الفصل'}.xlsx`);
     }
 
-    // تصدير الكشف إلى PDF
+    // تصدير PDF
     function exportToPDF() {
         if (names.length === 0) return alert("يرجى إنشاء الكشف أولاً قبل التصدير");
-
         const element = document.getElementById('printableArea');
         const delBtns = element.querySelectorAll('.del-btn');
         delBtns.forEach(b => b.style.display = 'none');
 
         const className = document.getElementById('className').value || 'الفصل';
         const opt = {
-            margin:       [12, 6, 6, 6],
-            filename:     `كشف_متابعة_${className}.pdf`,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+            margin: [12, 6, 6, 6],
+            filename: `كشف_متابعة_${className}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
         };
 
         html2pdf().set(opt).from(element).save().then(() => {
@@ -563,13 +523,11 @@
         });
     }
 
-    // تصدير الكشف إلى ملف Word (.doc)
+    // تصدير Word
     function exportToWord() {
         if (names.length === 0) return alert("يرجى إنشاء الكشف أولاً قبل التصدير");
-
         const printableArea = document.getElementById('printableArea').cloneNode(true);
         printableArea.querySelectorAll('.del-btn').forEach(btn => btn.remove());
-
         const className = document.getElementById('className').value || 'الفصل';
 
         const htmlContent = `
