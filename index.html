@@ -181,7 +181,7 @@
             width: 100%;
             border-collapse: collapse;
             border: none !important;
-            margin-bottom: 8px; /* تقليل المسافة لضمان احتواء 30 طالب */
+            margin-bottom: 8px;
             table-layout: fixed;
         }
         .header-table td {
@@ -201,8 +201,8 @@
             border: 1px solid var(--border-color); 
             text-align: center; 
             font-size: 11px; 
-            padding: 3px 2px; /* تقليل الحشو */
-            height: 20px; /* تقليل الارتفاع ليتسع لـ 30 طالب */
+            padding: 3px 2px;
+            height: 20px;
             box-sizing: border-box; 
         }
 
@@ -222,6 +222,7 @@
 
         .m-col { width: 28px; }
         .col-small { width: 31px; }
+        .col-merged { width: 62px; } /* حجم مضاعف للملاحظة عند الدمج */
 
         /* تعديلات الطباعة */
         @media print {
@@ -259,6 +260,7 @@
 
 <div class="controls">
     
+    <!-- قسم التعليمات -->
     <div class="instructions">
         <h4>💡 تعليمات استخدام الأداة:</h4>
         <ul>
@@ -266,7 +268,7 @@
             <li>لإضافة الطلاب: اختر ملف <b>إكسل</b> (الأسماء في العمود الأول) أو قم بـ <b>لصق الأسماء</b> في المربع السفلي.</li>
             <li>لإضافة فصول متعددة: قم بإدخال بيانات الفصل ثم اضغط على زر <b>(💾 حفظ)</b>، ثم اضغط <b>(➕ فصل جديد)</b> لإدخال الفصل التالي وهكذا.</li>
             <li>يمكنك استعراض وطباعة جميع الفصول المحفوظة دفعة واحدة بالضغط على <b>(📂 استعراض الكل)</b>.</li>
-            <li><b>ملاحظة للطباعة:</b> للحصول على أفضل نتيجة، تأكد من اختيار التخطيط (Landscape / عرضي) من إعدادات الطباعة في المتصفح.</li>
+            <li><b>ملاحظة للطباعة:</b> للحصول على أفضل نتيجة، تأكد من اختيار التخطيط (Landscape/عرضي) في نافذة الطباعة للحصول على أفضل نتيجة.</li>
         </ul>
     </div>
 
@@ -281,12 +283,14 @@
         <button onclick="clearAllData()" style="background:#c62828;">🗑️ مسح الكل</button>
     </div>
 
+    <!-- أزرار الإظهار والإخفاء وإعدادات الجدول -->
     <div class="toggle-group">
-        <label class="toggle-item"><input type="checkbox" id="showMinistry" checked onchange="toggleHeaderElements()"> وزارة التعليم</label>
-        <label class="toggle-item"><input type="checkbox" id="showSchool" checked onchange="toggleHeaderElements()"> المدرسة</label>
-        <label class="toggle-item"><input type="checkbox" id="showTeacher" checked onchange="toggleHeaderElements()"> المعلم</label>
-        <label class="toggle-item"><input type="checkbox" id="showWeek" checked onchange="toggleHeaderElements()"> الأسبوع</label>
-        <label class="toggle-item"><input type="checkbox" id="showSubjectTitle" checked onchange="toggleHeaderElements()"> عنوان الكشف (كشف متابعة..)</label>
+        <label class="toggle-item"><input type="checkbox" id="showMinistry" checked onchange="refreshView()"> وزارة التعليم</label>
+        <label class="toggle-item"><input type="checkbox" id="showSchool" checked onchange="refreshView()"> المدرسة</label>
+        <label class="toggle-item"><input type="checkbox" id="showTeacher" checked onchange="refreshView()"> المعلم</label>
+        <label class="toggle-item"><input type="checkbox" id="showWeek" checked onchange="refreshView()"> الأسبوع</label>
+        <label class="toggle-item"><input type="checkbox" id="showSubjectTitle" checked onchange="refreshView()"> عنوان الكشف</label>
+        <label class="toggle-item"><input type="checkbox" id="mergeNotes" onchange="refreshView()"> دمج (السلوك والملاحظة)</label>
     </div>
 
     <div class="input-grid">
@@ -316,7 +320,7 @@
         </div>
         <div class="input-field">
             <label>نوع الأرقام:</label>
-            <select id="numberStyle" onchange="renderTable()">
+            <select id="numberStyle" onchange="refreshView()">
                 <option value="ar">عربية (١، ٢، ٣، ...)</option>
                 <option value="en">إنجليزية (1, 2, 3, ...)</option>
             </select>
@@ -372,25 +376,8 @@
         </table>
 
         <table class="data-table">
-            <thead>
-                <tr class="header-top">
-                    <th rowspan="2" class="m-col">م</th>
-                    <th rowspan="2" class="name-col class-name-cell day-separator-left">
-                        الفصـل: <span id="displayClass"></span><br>الاســــــــــــــــــــــــــــــــم
-                    </th>
-                    <th colspan="5" class="day-header day-separator-left">الأحد &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span class="yr-digit">1448</span>هـ</th>
-                    <th colspan="5" class="day-header day-separator-left">الاثنين &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span class="yr-digit">1448</span>هـ</th>
-                    <th colspan="5" class="day-header day-separator-left">الثلاثاء &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span class="yr-digit">1448</span>هـ</th>
-                    <th colspan="5" class="day-header day-separator-left">الأربعاء &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span class="yr-digit">1448</span>هـ</th>
-                    <th colspan="5" class="day-header day-separator-left">الخميس &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span class="yr-digit">1448</span>هـ</th>
-                </tr>
-                <tr class="sub-header">
-                    <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small day-separator-left">ملاحظة</th>
-                    <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small day-separator-left">ملاحظة</th>
-                    <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small day-separator-left">ملاحظة</th>
-                    <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small day-separator-left">ملاحظة</th>
-                    <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small day-separator-left">ملاحظة</th>
-                </tr>
+            <thead id="printableThead">
+                <!-- يتم توليد رأس الجدول ديناميكياً هنا -->
             </thead>
             <tbody id="tableBody"></tbody>
         </table>
@@ -460,7 +447,8 @@
                 school: document.getElementById('showSchool').checked,
                 teacher: document.getElementById('showTeacher').checked,
                 week: document.getElementById('showWeek').checked,
-                subjectTitle: document.getElementById('showSubjectTitle').checked
+                subjectTitle: document.getElementById('showSubjectTitle').checked,
+                mergeNotes: document.getElementById('mergeNotes').checked
             }
         };
 
@@ -490,6 +478,7 @@
         document.getElementById('showTeacher').checked = data.toggles?.teacher ?? true;
         document.getElementById('showWeek').checked = data.toggles?.week ?? true;
         document.getElementById('showSubjectTitle').checked = data.toggles?.subjectTitle ?? true;
+        document.getElementById('mergeNotes').checked = data.toggles?.mergeNotes ?? false;
         
         names = data.names ? [...data.names] : [];
         document.getElementById('manualNames').value = names.join('\n');
@@ -535,6 +524,16 @@
         if(reportTitleContainer) reportTitleContainer.style.display = showSubjectTitle ? 'inline' : 'none';
     }
 
+    // دالة تحديث العرض المباشر (تُستدعى عند تغيير أي إعداد)
+    function refreshView() {
+        if (document.getElementById('allClassesArea').style.display === 'block') {
+            viewAllClasses();
+        } else if (document.getElementById('printableArea').style.display === 'block') {
+            toggleHeaderElements();
+            renderTable();
+        }
+    }
+
     function formatNumber(numStr, overrideStyle) {
         if (!numStr && numStr !== 0) return '';
         const style = overrideStyle || document.getElementById('numberStyle').value;
@@ -576,6 +575,31 @@
         root.style.setProperty('--bg-striped', themes[theme].bg);
     }
 
+    // دالة مساعدة لتوليد رأس الجدول ديناميكياً
+    function getTableHeaderHTML(year, isMerged, className, isSingleView = true) {
+        const cols = isMerged ? 4 : 5;
+        const subCols = isMerged
+            ? '<th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-merged day-separator-left">الملاحظة</th>'
+            : '<th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small day-separator-left">ملاحظة</th>';
+
+        const classSpan = isSingleView ? `<span id="displayClass">${className}</span>` : `<span>${className}</span>`;
+
+        return `
+            <tr class="header-top">
+                <th rowspan="2" class="m-col">م</th>
+                <th rowspan="2" class="name-col class-name-cell day-separator-left">الفصـل: ${classSpan}<br>الاســــــــــــــــــــــــــــــــم</th>
+                <th colspan="${cols}" class="day-header day-separator-left">الأحد &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span>${year}</span>هـ</th>
+                <th colspan="${cols}" class="day-header day-separator-left">الاثنين &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span>${year}</span>هـ</th>
+                <th colspan="${cols}" class="day-header day-separator-left">الثلاثاء &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span>${year}</span>هـ</th>
+                <th colspan="${cols}" class="day-header day-separator-left">الأربعاء &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span>${year}</span>هـ</th>
+                <th colspan="${cols}" class="day-header day-separator-left">الخميس &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span>${year}</span>هـ</th>
+            </tr>
+            <tr class="sub-header">
+                ${subCols.repeat(5)}
+            </tr>
+        `;
+    }
+
     function generateKashf() {
         const manual = document.getElementById('manualNames').value;
         if(manual.trim()) names = manual.split('\n').filter(n => n.trim());
@@ -586,7 +610,6 @@
         document.getElementById('headerSchool').innerText = document.getElementById('schoolName').value;
         document.getElementById('headerTeacher').innerText = document.getElementById('teacherName').value;
         document.getElementById('headerSubject').innerText = document.getElementById('subjectInput').value;
-        document.getElementById('displayClass').innerText = formatNumber(document.getElementById('className').value);
         document.getElementById('headerWeek').innerText = formatNumber(document.getElementById('weekInput').value) || '...........';
 
         toggleHeaderElements(); 
@@ -595,18 +618,25 @@
     }
 
     function renderTable() {
+        const thead = document.getElementById('printableThead');
         const tbody = document.getElementById('tableBody');
         if (!names.length) return;
 
         const yearVal = document.getElementById('yearInput').value || '1448';
-        document.querySelectorAll('.yr-digit').forEach(el => {
-            el.innerText = formatNumber(yearVal);
-        });
+        const formattedYear = formatNumber(yearVal);
+        const className = formatNumber(document.getElementById('className').value);
+        const isMerged = document.getElementById('mergeNotes').checked;
+
+        thead.innerHTML = getTableHeaderHTML(formattedYear, isMerged, className, true);
 
         tbody.innerHTML = names.map((name, i) => {
             let cells = '';
             for(let day = 0; day < 5; day++) {
-                cells += `<td></td><td></td><td></td><td></td><td class="day-separator-left"></td>`;
+                if (isMerged) {
+                    cells += `<td></td><td></td><td></td><td class="day-separator-left"></td>`;
+                } else {
+                    cells += `<td></td><td></td><td></td><td></td><td class="day-separator-left"></td>`;
+                }
             }
             return `
                 <tr class="student-row">
@@ -653,11 +683,16 @@
         const yr = formatNumber(data.year || '1448', nStyle);
         const wk = formatNumber(data.week, nStyle);
         const cName = formatNumber(data.className, nStyle);
+        const isMerged = data.toggles.mergeNotes || false;
         
         let tbody = data.names.map((n, i) => {
             let cells = '';
             for(let d = 0; d < 5; d++) {
-                cells += `<td></td><td></td><td></td><td></td><td class="day-separator-left"></td>`;
+                if (isMerged) {
+                    cells += `<td></td><td></td><td></td><td class="day-separator-left"></td>`;
+                } else {
+                    cells += `<td></td><td></td><td></td><td></td><td class="day-separator-left"></td>`;
+                }
             }
             return `
             <tr class="student-row">
@@ -666,6 +701,8 @@
                 ${cells}
             </tr>`;
         }).join('');
+
+        const theadHTML = getTableHeaderHTML(yr, isMerged, cName, false);
 
         const minSpan = data.toggles.ministry ? 'inline' : 'none';
         const schSpan = data.toggles.school ? 'inline' : 'none';
@@ -697,24 +734,7 @@
             </table>
             
             <table class="data-table">
-                <thead>
-                    <tr class="header-top">
-                        <th rowspan="2" class="m-col">م</th>
-                        <th rowspan="2" class="name-col class-name-cell day-separator-left">الفصـل: ${cName}<br>الاســــــــــــــــــــــــــــــــم</th>
-                        <th colspan="5" class="day-header day-separator-left">الأحد &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span>${yr}</span>هـ</th>
-                        <th colspan="5" class="day-header day-separator-left">الاثنين &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span>${yr}</span>هـ</th>
-                        <th colspan="5" class="day-header day-separator-left">الثلاثاء &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span>${yr}</span>هـ</th>
-                        <th colspan="5" class="day-header day-separator-left">الأربعاء &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span>${yr}</span>هـ</th>
-                        <th colspan="5" class="day-header day-separator-left">الخميس &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span>${yr}</span>هـ</th>
-                    </tr>
-                    <tr class="sub-header">
-                        <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small day-separator-left">ملاحظة</th>
-                        <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small day-separator-left">ملاحظة</th>
-                        <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small day-separator-left">ملاحظة</th>
-                        <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small day-separator-left">ملاحظة</th>
-                        <th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small day-separator-left">ملاحظة</th>
-                    </tr>
-                </thead>
+                <thead>${theadHTML}</thead>
                 <tbody>${tbody}</tbody>
             </table>
         </div>
@@ -723,8 +743,10 @@
 
     function createSheetForClass(data) {
         const nStyle = data.numberStyle || 'ar';
+        const isMerged = data.toggles.mergeNotes || false;
         const days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس'];
-        const subHeaders = ['غياب', 'كتاب', 'مشاركة', 'سلوك', 'ملاحظة'];
+        const subHeaders = isMerged ? ['غياب', 'كتاب', 'مشاركة', 'الملاحظة'] : ['غياب', 'كتاب', 'مشاركة', 'سلوك', 'ملاحظة'];
+        const colsPerDay = isMerged ? 4 : 5;
         
         const ministry = data.toggles.ministry ? 'وزارة التعليم' : '';
         const school = data.toggles.school ? data.school : '';
@@ -738,7 +760,10 @@
         arr.push([]); 
 
         let dayRow = ['م', 'الفصل: ' + formatNumber(data.className, nStyle) + ' - الاسم'];
-        days.forEach(d => { dayRow.push(d, '', '', '', ''); });
+        days.forEach(d => { 
+            dayRow.push(d);
+            for(let i = 1; i < colsPerDay; i++) dayRow.push('');
+        });
         arr.push(dayRow);
 
         let subRow = ['', ''];
@@ -747,7 +772,8 @@
 
         data.names.forEach((name, idx) => {
             let studentRow = [formatNumber(idx + 1, nStyle), name];
-            for (let i = 0; i < 25; i++) studentRow.push('');
+            const totalCols = colsPerDay * 5;
+            for (let i = 0; i < totalCols; i++) studentRow.push('');
             arr.push(studentRow);
         });
 
@@ -782,7 +808,8 @@
                     school: document.getElementById('showSchool').checked,
                     teacher: document.getElementById('showTeacher').checked,
                     week: document.getElementById('showWeek').checked,
-                    subjectTitle: document.getElementById('showSubjectTitle').checked
+                    subjectTitle: document.getElementById('showSubjectTitle').checked,
+                    mergeNotes: document.getElementById('mergeNotes').checked
                 }
             };
             const ws = createSheetForClass(currentData);
@@ -795,46 +822,37 @@
     function exportToPDF() {
         const isAllMode = document.getElementById('allClassesArea').style.display === 'block';
         if (!isAllMode && names.length === 0) return alert("يرجى إنشاء الكشف أولاً قبل التصدير");
+        
+        const areaId = isAllMode ? 'allClassesArea' : 'printableArea';
+        const element = document.getElementById(areaId);
+        
+        element.classList.add('pdf-export-mode');
 
-        // الطباعة الأصلية للمتصفح تدعم العربية والجداول أفضل من تحويلها إلى Canvas.
-        const source = document.getElementById(isAllMode ? 'allClassesArea' : 'printableArea');
-        const clone = source.cloneNode(true);
-        clone.querySelectorAll('.del-btn').forEach(btn => btn.remove());
-        clone.querySelectorAll('[contenteditable="true"]').forEach(el => el.removeAttribute('contenteditable'));
+        const delBtns = element.querySelectorAll('.del-btn');
+        delBtns.forEach(b => b.style.display = 'none');
 
-        const printWindow = window.open('', '_blank', 'width=1200,height=850');
-        if (!printWindow) return alert("تعذر فتح نافذة التصدير. اسمح بالنوافذ المنبثقة لهذا الموقع ثم أعد المحاولة.");
+        // الحيلة السحرية لحل مشكلة اتجاه اليمين لليسار مع html2canvas
+        const originalDocDir = document.documentElement.dir;
+        document.documentElement.dir = 'ltr';
+        element.style.direction = 'rtl';
 
-        const appStyles = document.querySelector('style').textContent;
-        printWindow.document.open();
-        printWindow.document.write(`
-            <!DOCTYPE html>
-            <html lang="ar" dir="rtl">
-            <head>
-                <meta charset="UTF-8">
-                <title>حفظ كشف المتابعة PDF</title>
-                <style>
-                    ${appStyles}
-                    @page { size: A4 landscape; margin: 5mm; }
-                    html, body { direction: rtl; background: #fff !important; margin: 0 !important; padding: 0 !important; }
-                    .page-container, .all-mode-container { display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
-                    .class-page { width: 100% !important; min-height: 0 !important; box-sizing: border-box !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; border-radius: 0 !important; break-after: page; page-break-after: always; break-inside: avoid; page-break-inside: avoid; }
-                    .class-page:last-child { break-after: auto; page-break-after: auto; }
-                    .del-btn { display: none !important; }
-                    table.data-table { width: 100% !important; direction: rtl !important; }
-                    table.data-table tr { break-inside: avoid; page-break-inside: avoid; }
-                </style>
-            </head>
-            <body>${clone.innerHTML}</body>
-            </html>
-        `);
-        printWindow.document.close();
-        printWindow.onload = () => {
-            setTimeout(() => {
-                printWindow.focus();
-                printWindow.print();
-            }, 400);
+        const fileName = isAllMode ? `جميع_الكشوفات.pdf` : `كشف_متابعة_${document.getElementById('className').value || 'الفصل'}.pdf`;
+        
+        const opt = {
+            margin: [5, 5, 5, 5],
+            filename: fileName,
+            image: { type: 'jpeg', quality: 1 },
+            html2canvas: { scale: 2, useCORS: true, windowWidth: 1122 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+            pagebreak: { mode: ['css'], after: '.class-page' }
         };
+
+        html2pdf().set(opt).from(element).save().then(() => {
+            document.documentElement.dir = originalDocDir;
+            element.style.direction = '';
+            delBtns.forEach(b => b.style.display = 'inline-block');
+            element.classList.remove('pdf-export-mode');
+        });
     }
 
     function exportToWord() {
