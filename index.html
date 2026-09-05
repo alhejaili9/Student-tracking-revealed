@@ -204,6 +204,7 @@
             padding: 3px 2px;
             height: 20px;
             box-sizing: border-box; 
+            overflow: hidden;
         }
 
         .day-separator-left { border-left: 3px solid var(--thick-border-color) !important; }
@@ -216,11 +217,8 @@
 
         .student-row:nth-child(even) { background-color: var(--bg-striped); }
         
-        /* التوزيع الدقيق بالنسبة المئوية لضمان عدم تأثر باقي الأعمدة عند الدمج */
-        .m-col { width: 3%; }
-        .name-col { width: 17%; text-align: right; padding-right: 6px; white-space: nowrap; position: relative; }
-        .col-small { width: 3.2%; }      /* 16% لليوم الواحد / 5 أعمدة = 3.2% للعمود الصغير */
-        .col-merged { width: 6.4%; }     /* ضعف العمود الصغير تماماً لخانة الملاحظة الكبيرة */
+        /* خصائص تنسيق الاسم من الداخل لتتوافق مع colgroup */
+        .name-cell-content { text-align: right; padding-right: 6px; white-space: nowrap; position: relative; display: block;}
 
         .del-btn { color: #d32f2f; cursor: pointer; font-weight: bold; margin-left: 5px; font-size: 13px; border: none; background: none; padding: 0 3px; }
         .del-btn:hover { color: #9a0007; }
@@ -238,7 +236,6 @@
             table.data-table thead { display: table-row-group; }
         }
 
-        /* كلاس مخصص لحفظ الـ PDF يضمن استقلالية الصفحات والعرض الكامل 100% */
         .pdf-export-mode { width: 100% !important; margin: 0 !important; padding: 0 !important; }
         .pdf-export-mode .class-page {
              width: 100% !important;
@@ -261,6 +258,7 @@
 
 <div class="controls">
     
+    <!-- قسم التعليمات -->
     <div class="instructions">
         <h4>💡 تعليمات استخدام الأداة:</h4>
         <ul>
@@ -268,7 +266,7 @@
             <li>لإضافة الطلاب: اختر ملف <b>إكسل</b> (الأسماء في العمود الأول) أو قم بـ <b>لصق الأسماء</b> في المربع السفلي.</li>
             <li>لإضافة فصول متعددة: قم بإدخال بيانات الفصل ثم اضغط على زر <b>(💾 حفظ)</b>، ثم اضغط <b>(➕ فصل جديد)</b> لإدخال الفصل التالي وهكذا.</li>
             <li>يمكنك استعراض وطباعة جميع الفصول المحفوظة دفعة واحدة بالضغط على <b>(📂 استعراض الكل)</b>.</li>
-            <li><b>ملاحظة للطباعة:</b> للحصول على أفضل نتيجة، تأكد من اختيار التخطيط (Landscape/عرضي) في نافذة الطباعة للحصول على أفضل نتيجة.</li>
+            <li><b>ملاحظة للطباعة:</b> للحصول على أفضل نتيجة، تأكد من اختيار التخطيط (Landscape / عرضي) من إعدادات الطباعة في المتصفح.</li>
         </ul>
     </div>
 
@@ -375,6 +373,9 @@
         </table>
 
         <table class="data-table">
+            <colgroup id="printableColGroup">
+                <!-- يتم توليد الأبعاد ديناميكياً هنا لحل مشكلة توزع المسافات -->
+            </colgroup>
             <thead id="printableThead">
                 <!-- يتم توليد رأس الجدول ديناميكياً هنا -->
             </thead>
@@ -523,7 +524,6 @@
         if(reportTitleContainer) reportTitleContainer.style.display = showSubjectTitle ? 'inline' : 'none';
     }
 
-    // دالة تحديث العرض المباشر (تُستدعى عند تغيير أي إعداد)
     function refreshView() {
         if (document.getElementById('allClassesArea').style.display === 'block') {
             viewAllClasses();
@@ -574,19 +574,33 @@
         root.style.setProperty('--bg-striped', themes[theme].bg);
     }
 
-    // دالة مساعدة لتوليد رأس الجدول ديناميكياً
+    // دالة إنشاء المقاسات الصارمة بنسبة مئوية
+    function getColGroupHTML(isMerged) {
+        let cols = `<col style="width: 3%;"><col style="width: 17%;">`;
+        for(let day=0; day<5; day++) {
+            if(isMerged) {
+                // 3 خانات صغيرة متساوية، وخانة رابعة بحجم مضاعف للملاحظة
+                cols += `<col style="width: 3.2%;"><col style="width: 3.2%;"><col style="width: 3.2%;"><col style="width: 6.4%;">`;
+            } else {
+                // 5 خانات صغيرة متساوية
+                cols += `<col style="width: 3.2%;"><col style="width: 3.2%;"><col style="width: 3.2%;"><col style="width: 3.2%;"><col style="width: 3.2%;">`;
+            }
+        }
+        return cols;
+    }
+
     function getTableHeaderHTML(year, isMerged, className, isSingleView = true) {
         const cols = isMerged ? 4 : 5;
         const subCols = isMerged
-            ? '<th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-merged day-separator-left">الملاحظة</th>'
-            : '<th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small day-separator-left">ملاحظة</th>';
+            ? '<th>غياب</th><th>كتاب</th><th>مشاركة</th><th class="day-separator-left">الملاحظة</th>'
+            : '<th>غياب</th><th>كتاب</th><th>مشاركة</th><th>سلوك</th><th class="day-separator-left">ملاحظة</th>';
 
         const classSpan = isSingleView ? `<span id="displayClass">${className}</span>` : `<span>${className}</span>`;
 
         return `
             <tr class="header-top">
-                <th rowspan="2" class="m-col">م</th>
-                <th rowspan="2" class="name-col class-name-cell day-separator-left">الفصـل: ${classSpan}<br>الاســــــــــــــــــــــــــــــــم</th>
+                <th rowspan="2">م</th>
+                <th rowspan="2" class="class-name-cell day-separator-left">الفصـل: ${classSpan}<br>الاســــــــــــــــــــــــــــــــم</th>
                 <th colspan="${cols}" class="day-header day-separator-left">الأحد &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span>${year}</span>هـ</th>
                 <th colspan="${cols}" class="day-header day-separator-left">الاثنين &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span>${year}</span>هـ</th>
                 <th colspan="${cols}" class="day-header day-separator-left">الثلاثاء &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span>${year}</span>هـ</th>
@@ -619,6 +633,7 @@
     function renderTable() {
         const thead = document.getElementById('printableThead');
         const tbody = document.getElementById('tableBody');
+        const colGroup = document.getElementById('printableColGroup');
         if (!names.length) return;
 
         const yearVal = document.getElementById('yearInput').value || '1448';
@@ -626,21 +641,23 @@
         const className = formatNumber(document.getElementById('className').value);
         const isMerged = document.getElementById('mergeNotes').checked;
 
+        // تطبيق المقاسات الصارمة
+        colGroup.innerHTML = getColGroupHTML(isMerged);
         thead.innerHTML = getTableHeaderHTML(formattedYear, isMerged, className, true);
 
         tbody.innerHTML = names.map((name, i) => {
             let cells = '';
             for(let day = 0; day < 5; day++) {
                 if (isMerged) {
-                    cells += `<td></td><td></td><td></td><td class="col-merged day-separator-left"></td>`;
+                    cells += `<td></td><td></td><td></td><td class="day-separator-left"></td>`;
                 } else {
-                    cells += `<td></td><td></td><td></td><td></td><td class="col-small day-separator-left"></td>`;
+                    cells += `<td></td><td></td><td></td><td></td><td class="day-separator-left"></td>`;
                 }
             }
             return `
                 <tr class="student-row">
                     <td>${formatNumber(i + 1)}</td>
-                    <td class="name-col day-separator-left">
+                    <td class="day-separator-left" style="text-align: right; padding-right: 6px;">
                         <button class="del-btn" onclick="deleteName(${i})" title="حذف الطالب">X</button>
                         <span contenteditable="true" onblur="updateName(${i}, this.innerText)">${name}</span>
                     </td>
@@ -688,20 +705,21 @@
             let cells = '';
             for(let d = 0; d < 5; d++) {
                 if (isMerged) {
-                    cells += `<td></td><td></td><td></td><td class="col-merged day-separator-left"></td>`;
+                    cells += `<td></td><td></td><td></td><td class="day-separator-left"></td>`;
                 } else {
-                    cells += `<td></td><td></td><td></td><td></td><td class="col-small day-separator-left"></td>`;
+                    cells += `<td></td><td></td><td></td><td></td><td class="day-separator-left"></td>`;
                 }
             }
             return `
             <tr class="student-row">
                 <td>${formatNumber(i+1, nStyle)}</td>
-                <td class="name-col day-separator-left">${n}</td>
+                <td class="day-separator-left" style="text-align: right; padding-right: 6px;">${n}</td>
                 ${cells}
             </tr>`;
         }).join('');
 
         const theadHTML = getTableHeaderHTML(yr, isMerged, cName, false);
+        const colgroupHTML = `<colgroup>${getColGroupHTML(isMerged)}</colgroup>`;
 
         const minSpan = data.toggles.ministry ? 'inline' : 'none';
         const schSpan = data.toggles.school ? 'inline' : 'none';
@@ -733,6 +751,7 @@
             </table>
             
             <table class="data-table">
+                ${colgroupHTML}
                 <thead>${theadHTML}</thead>
                 <tbody>${tbody}</tbody>
             </table>
@@ -787,7 +806,7 @@
             if(Object.keys(appData).length === 0) return alert("لا توجد فصول محفوظة للتصدير.");
             for (const cls in appData) {
                 const ws = createSheetForClass(appData[cls]);
-                const safeName = cls.replace(/[\\/*?:\[\]]/g, '-').substring(0, 31);
+                const safeName = cls.replace(/[\/*?:\[\]]/g, '-').substring(0, 31);
                 XLSX.utils.book_append_sheet(wb, ws, safeName);
             }
             XLSX.writeFile(wb, `جميع_الكشوفات.xlsx`);
@@ -812,7 +831,7 @@
                 }
             };
             const ws = createSheetForClass(currentData);
-            const safeName = (currentData.className || 'الفصل').replace(/[\\/*?:\[\]]/g, '-').substring(0, 31);
+            const safeName = (currentData.className || 'الفصل').replace(/[\/*?:\[\]]/g, '-').substring(0, 31);
             XLSX.utils.book_append_sheet(wb, ws, safeName);
             XLSX.writeFile(wb, `كشف_متابعة_${safeName}.xlsx`);
         }
