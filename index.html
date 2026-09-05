@@ -215,14 +215,15 @@
         .day-header { font-size: 11px; background-color: var(--header-bg); white-space: nowrap; padding: 6px 2px; letter-spacing: 0.5px; }
 
         .student-row:nth-child(even) { background-color: var(--bg-striped); }
-        .name-col { width: 200px; text-align: right; padding-right: 6px; white-space: nowrap; position: relative; }
         
+        /* التوزيع الدقيق بالنسبة المئوية لضمان عدم تأثر باقي الأعمدة عند الدمج */
+        .m-col { width: 3%; }
+        .name-col { width: 17%; text-align: right; padding-right: 6px; white-space: nowrap; position: relative; }
+        .col-small { width: 3.2%; }      /* 16% لليوم الواحد / 5 أعمدة = 3.2% للعمود الصغير */
+        .col-merged { width: 6.4%; }     /* ضعف العمود الصغير تماماً لخانة الملاحظة الكبيرة */
+
         .del-btn { color: #d32f2f; cursor: pointer; font-weight: bold; margin-left: 5px; font-size: 13px; border: none; background: none; padding: 0 3px; }
         .del-btn:hover { color: #9a0007; }
-
-        .m-col { width: 28px; }
-        .col-small { width: 31px; }
-        .col-merged { width: 62px; } /* حجم مضاعف للملاحظة عند الدمج */
 
         /* تعديلات الطباعة */
         @media print {
@@ -260,7 +261,6 @@
 
 <div class="controls">
     
-    <!-- قسم التعليمات -->
     <div class="instructions">
         <h4>💡 تعليمات استخدام الأداة:</h4>
         <ul>
@@ -283,13 +283,12 @@
         <button onclick="clearAllData()" style="background:#c62828;">🗑️ مسح الكل</button>
     </div>
 
-    <!-- أزرار الإظهار والإخفاء وإعدادات الجدول -->
     <div class="toggle-group">
-        <label class="toggle-item"><input type="checkbox" id="showMinistry" checked onchange="refreshView()"> وزارة التعليم</label>
-        <label class="toggle-item"><input type="checkbox" id="showSchool" checked onchange="refreshView()"> المدرسة</label>
-        <label class="toggle-item"><input type="checkbox" id="showTeacher" checked onchange="refreshView()"> المعلم</label>
-        <label class="toggle-item"><input type="checkbox" id="showWeek" checked onchange="refreshView()"> الأسبوع</label>
-        <label class="toggle-item"><input type="checkbox" id="showSubjectTitle" checked onchange="refreshView()"> عنوان الكشف</label>
+        <label class="toggle-item"><input type="checkbox" id="showMinistry" checked onchange="toggleHeaderElements()"> وزارة التعليم</label>
+        <label class="toggle-item"><input type="checkbox" id="showSchool" checked onchange="toggleHeaderElements()"> المدرسة</label>
+        <label class="toggle-item"><input type="checkbox" id="showTeacher" checked onchange="toggleHeaderElements()"> المعلم</label>
+        <label class="toggle-item"><input type="checkbox" id="showWeek" checked onchange="toggleHeaderElements()"> الأسبوع</label>
+        <label class="toggle-item"><input type="checkbox" id="showSubjectTitle" checked onchange="toggleHeaderElements()"> عنوان الكشف (كشف متابعة..)</label>
         <label class="toggle-item"><input type="checkbox" id="mergeNotes" onchange="refreshView()"> دمج (السلوك والملاحظة)</label>
     </div>
 
@@ -633,9 +632,9 @@
             let cells = '';
             for(let day = 0; day < 5; day++) {
                 if (isMerged) {
-                    cells += `<td></td><td></td><td></td><td class="day-separator-left"></td>`;
+                    cells += `<td></td><td></td><td></td><td class="col-merged day-separator-left"></td>`;
                 } else {
-                    cells += `<td></td><td></td><td></td><td></td><td class="day-separator-left"></td>`;
+                    cells += `<td></td><td></td><td></td><td></td><td class="col-small day-separator-left"></td>`;
                 }
             }
             return `
@@ -689,9 +688,9 @@
             let cells = '';
             for(let d = 0; d < 5; d++) {
                 if (isMerged) {
-                    cells += `<td></td><td></td><td></td><td class="day-separator-left"></td>`;
+                    cells += `<td></td><td></td><td></td><td class="col-merged day-separator-left"></td>`;
                 } else {
-                    cells += `<td></td><td></td><td></td><td></td><td class="day-separator-left"></td>`;
+                    cells += `<td></td><td></td><td></td><td></td><td class="col-small day-separator-left"></td>`;
                 }
             }
             return `
@@ -844,7 +843,7 @@
             image: { type: 'jpeg', quality: 1 },
             html2canvas: { scale: 2, useCORS: true, windowWidth: 1122 },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
-            pagebreak: { mode: ['css'], after: '.class-page' }
+            pagebreak: { mode: ['css', 'legacy'] }
         };
 
         html2pdf().set(opt).from(element).save().then(() => {
@@ -894,6 +893,11 @@
                     table.header-table td { border: none; padding: 0; vertical-align: middle; }
                     .day-separator-left { border-left: 3px solid #000 !important; }
                     .student-row:nth-child(even) { background-color: #f4f9f4; }
+                    /* الاعتماد على النسب المئوية في وورد أيضا */
+                    .m-col { width: 3%; }
+                    .name-col { width: 17%; }
+                    .col-small { width: 3.2%; }
+                    .col-merged { width: 6.4%; }
                 </style>
             </head>
             <body>
