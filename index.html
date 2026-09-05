@@ -12,8 +12,6 @@
         :root {
             --bg-striped: #e9f5e9;
             --header-bg: #ffffff;
-            --border-color: #000000;
-            --thick-border-color: #000000;
         }
 
         body {
@@ -177,6 +175,7 @@
             box-sizing: border-box;
         }
 
+        /* الجدول الخاص بالترويسة لضمان توافقه مع Word والطباعة */
         .header-table {
             width: 100%;
             border-collapse: collapse;
@@ -197,8 +196,10 @@
             background-color: #fff; 
             margin-bottom: 5px;
         }
+        
+        /* إجبار المتصفح ووورد على استخدام اللون الأسود بشكل صريح دون متغيرات */
         table.data-table th, table.data-table td { 
-            border: 1px solid var(--border-color); 
+            border: 1px solid #000; 
             text-align: center; 
             font-size: 11px; 
             padding: 3px 2px;
@@ -207,7 +208,15 @@
             overflow: hidden;
         }
 
-        .day-separator-left { border-left: 3px solid var(--thick-border-color) !important; }
+        /* خط مميز صريح للوورد والطباعة */
+        .day-separator-left { border-left: 3px solid #000 !important; }
+        
+        /* مقاسات الأعمدة الصارمة بالنسبة المئوية */
+        .m-col { width: 3%; }
+        .name-col { width: 17%; text-align: right; padding-right: 6px; white-space: nowrap; position: relative; }
+        .col-small { width: 3.2%; }  /* 5 خانات = 16% لليوم الواحد */
+        .col-tiny { width: 3%; }     /* غياب، كتاب، مشاركة = 9% */
+        .col-large { width: 7%; }    /* الملاحظة المدمجة = 7% لضمان إجمالي 16% لليوم الواحد */
         
         .header-top th { font-weight: bold; background: var(--header-bg); }
         .sub-header th { background: var(--header-bg); font-size: 10px; padding: 4px 1px; }
@@ -217,13 +226,10 @@
 
         .student-row:nth-child(even) { background-color: var(--bg-striped); }
         
-        /* خصائص تنسيق الاسم من الداخل لتتوافق مع colgroup */
-        .name-cell-content { text-align: right; padding-right: 6px; white-space: nowrap; position: relative; display: block;}
-
         .del-btn { color: #d32f2f; cursor: pointer; font-weight: bold; margin-left: 5px; font-size: 13px; border: none; background: none; padding: 0 3px; }
         .del-btn:hover { color: #9a0007; }
 
-        /* تعديلات الطباعة */
+        /* تعديلات الطباعة لتجاهل الأزرار وفصل الكشوف */
         @media print {
             @page { size: A4 landscape; margin: 5mm; }
             body { background: white; padding: 0; margin: 0; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -236,6 +242,7 @@
             table.data-table thead { display: table-row-group; }
         }
 
+        /* كلاس مخصص لحفظ الـ PDF يضمن استقلالية الصفحات */
         .pdf-export-mode { width: 100% !important; margin: 0 !important; padding: 0 !important; }
         .pdf-export-mode .class-page {
              width: 100% !important;
@@ -258,7 +265,6 @@
 
 <div class="controls">
     
-    <!-- قسم التعليمات -->
     <div class="instructions">
         <h4>💡 تعليمات استخدام الأداة:</h4>
         <ul>
@@ -373,9 +379,6 @@
         </table>
 
         <table class="data-table">
-            <colgroup id="printableColGroup">
-                <!-- يتم توليد الأبعاد ديناميكياً هنا لحل مشكلة توزع المسافات -->
-            </colgroup>
             <thead id="printableThead">
                 <!-- يتم توليد رأس الجدول ديناميكياً هنا -->
             </thead>
@@ -574,33 +577,19 @@
         root.style.setProperty('--bg-striped', themes[theme].bg);
     }
 
-    // دالة إنشاء المقاسات الصارمة بنسبة مئوية
-    function getColGroupHTML(isMerged) {
-        let cols = `<col style="width: 3%;"><col style="width: 17%;">`;
-        for(let day=0; day<5; day++) {
-            if(isMerged) {
-                // 3 خانات صغيرة متساوية، وخانة رابعة بحجم مضاعف للملاحظة
-                cols += `<col style="width: 3.2%;"><col style="width: 3.2%;"><col style="width: 3.2%;"><col style="width: 6.4%;">`;
-            } else {
-                // 5 خانات صغيرة متساوية
-                cols += `<col style="width: 3.2%;"><col style="width: 3.2%;"><col style="width: 3.2%;"><col style="width: 3.2%;"><col style="width: 3.2%;">`;
-            }
-        }
-        return cols;
-    }
-
+    // دالة لتوليد رأس الجدول باستخدام الكلاسات الصارمة
     function getTableHeaderHTML(year, isMerged, className, isSingleView = true) {
         const cols = isMerged ? 4 : 5;
         const subCols = isMerged
-            ? '<th>غياب</th><th>كتاب</th><th>مشاركة</th><th class="day-separator-left">الملاحظة</th>'
-            : '<th>غياب</th><th>كتاب</th><th>مشاركة</th><th>سلوك</th><th class="day-separator-left">ملاحظة</th>';
+            ? '<th class="col-tiny">غياب</th><th class="col-tiny">كتاب</th><th class="col-tiny">مشاركة</th><th class="col-large day-separator-left">الملاحظة</th>'
+            : '<th class="col-small">غياب</th><th class="col-small">كتاب</th><th class="col-small">مشاركة</th><th class="col-small">سلوك</th><th class="col-small day-separator-left">ملاحظة</th>';
 
         const classSpan = isSingleView ? `<span id="displayClass">${className}</span>` : `<span>${className}</span>`;
 
         return `
             <tr class="header-top">
-                <th rowspan="2">م</th>
-                <th rowspan="2" class="class-name-cell day-separator-left">الفصـل: ${classSpan}<br>الاســــــــــــــــــــــــــــــــم</th>
+                <th rowspan="2" class="m-col">م</th>
+                <th rowspan="2" class="name-col day-separator-left">الفصـل: ${classSpan}<br>الاســــــــــــــــــــــــــــــــم</th>
                 <th colspan="${cols}" class="day-header day-separator-left">الأحد &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span>${year}</span>هـ</th>
                 <th colspan="${cols}" class="day-header day-separator-left">الاثنين &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span>${year}</span>هـ</th>
                 <th colspan="${cols}" class="day-header day-separator-left">الثلاثاء &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp; / <span>${year}</span>هـ</th>
@@ -633,7 +622,6 @@
     function renderTable() {
         const thead = document.getElementById('printableThead');
         const tbody = document.getElementById('tableBody');
-        const colGroup = document.getElementById('printableColGroup');
         if (!names.length) return;
 
         const yearVal = document.getElementById('yearInput').value || '1448';
@@ -641,23 +629,21 @@
         const className = formatNumber(document.getElementById('className').value);
         const isMerged = document.getElementById('mergeNotes').checked;
 
-        // تطبيق المقاسات الصارمة
-        colGroup.innerHTML = getColGroupHTML(isMerged);
         thead.innerHTML = getTableHeaderHTML(formattedYear, isMerged, className, true);
 
         tbody.innerHTML = names.map((name, i) => {
             let cells = '';
             for(let day = 0; day < 5; day++) {
                 if (isMerged) {
-                    cells += `<td></td><td></td><td></td><td class="day-separator-left"></td>`;
+                    cells += `<td class="col-tiny"></td><td class="col-tiny"></td><td class="col-tiny"></td><td class="col-large day-separator-left"></td>`;
                 } else {
-                    cells += `<td></td><td></td><td></td><td></td><td class="day-separator-left"></td>`;
+                    cells += `<td class="col-small"></td><td class="col-small"></td><td class="col-small"></td><td class="col-small"></td><td class="col-small day-separator-left"></td>`;
                 }
             }
             return `
                 <tr class="student-row">
-                    <td>${formatNumber(i + 1)}</td>
-                    <td class="day-separator-left" style="text-align: right; padding-right: 6px;">
+                    <td class="m-col">${formatNumber(i + 1)}</td>
+                    <td class="name-col day-separator-left">
                         <button class="del-btn" onclick="deleteName(${i})" title="حذف الطالب">X</button>
                         <span contenteditable="true" onblur="updateName(${i}, this.innerText)">${name}</span>
                     </td>
@@ -705,21 +691,20 @@
             let cells = '';
             for(let d = 0; d < 5; d++) {
                 if (isMerged) {
-                    cells += `<td></td><td></td><td></td><td class="day-separator-left"></td>`;
+                    cells += `<td class="col-tiny"></td><td class="col-tiny"></td><td class="col-tiny"></td><td class="col-large day-separator-left"></td>`;
                 } else {
-                    cells += `<td></td><td></td><td></td><td></td><td class="day-separator-left"></td>`;
+                    cells += `<td class="col-small"></td><td class="col-small"></td><td class="col-small"></td><td class="col-small"></td><td class="col-small day-separator-left"></td>`;
                 }
             }
             return `
             <tr class="student-row">
-                <td>${formatNumber(i+1, nStyle)}</td>
-                <td class="day-separator-left" style="text-align: right; padding-right: 6px;">${n}</td>
+                <td class="m-col">${formatNumber(i+1, nStyle)}</td>
+                <td class="name-col day-separator-left">${n}</td>
                 ${cells}
             </tr>`;
         }).join('');
 
         const theadHTML = getTableHeaderHTML(yr, isMerged, cName, false);
-        const colgroupHTML = `<colgroup>${getColGroupHTML(isMerged)}</colgroup>`;
 
         const minSpan = data.toggles.ministry ? 'inline' : 'none';
         const schSpan = data.toggles.school ? 'inline' : 'none';
@@ -731,7 +716,6 @@
         
         const titleDisplay = (data.toggles.subjectTitle !== false) ? 'inline' : 'none';
 
-        // استخدام Table في ترويسة جميع الفصول لضمان عمل Word والطباعة بشكل سليم
         return `
         <div class="class-page">
             <table class="header-table">
@@ -751,7 +735,6 @@
             </table>
             
             <table class="data-table">
-                ${colgroupHTML}
                 <thead>${theadHTML}</thead>
                 <tbody>${tbody}</tbody>
             </table>
@@ -849,7 +832,6 @@
         const delBtns = element.querySelectorAll('.del-btn');
         delBtns.forEach(b => b.style.display = 'none');
 
-        // الحيلة السحرية لحل مشكلة اتجاه اليمين لليسار مع html2canvas
         const originalDocDir = document.documentElement.dir;
         document.documentElement.dir = 'ltr';
         element.style.direction = 'rtl';
@@ -912,11 +894,13 @@
                     table.header-table td { border: none; padding: 0; vertical-align: middle; }
                     .day-separator-left { border-left: 3px solid #000 !important; }
                     .student-row:nth-child(even) { background-color: #f4f9f4; }
-                    /* الاعتماد على النسب المئوية في وورد أيضا */
+                    
+                    /* الاعتماد على النسب المئوية في وورد بشكل صريح */
                     .m-col { width: 3%; }
                     .name-col { width: 17%; }
                     .col-small { width: 3.2%; }
-                    .col-merged { width: 6.4%; }
+                    .col-tiny { width: 3%; }
+                    .col-large { width: 7%; }
                 </style>
             </head>
             <body>
